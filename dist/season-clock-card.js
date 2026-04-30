@@ -67,16 +67,16 @@ var e = [
 	}
 ], n = class extends HTMLElement {
 	setConfig(e) {
-		this._config = e || {}, this.render();
+		this._config = e || {}, this.updateForm();
 	}
 	set hass(e) {
-		this._hass = e, this.render();
+		this._hass = e, this.updateForm();
 	}
 	render() {
-		if (!this._hass) return;
+		if (!this._hass || this._rendered) return;
 		this.innerHTML = "\n      <style>\n        .display-actions {\n          display: flex;\n          gap: 8px;\n          margin: 12px 0;\n        }\n\n        .display-actions button {\n          border: 1px solid var(--divider-color, rgba(127, 127, 127, 0.28));\n          border-radius: 8px;\n          padding: 8px 12px;\n          background: var(--secondary-background-color, transparent);\n          color: var(--primary-text-color);\n          cursor: pointer;\n          font: inherit;\n          font-size: 13px;\n          font-weight: 600;\n        }\n      </style>\n      <ha-form></ha-form>\n      <div class=\"display-actions\" aria-label=\"Clock face item shortcuts\">\n        <button type=\"button\" data-display-action=\"on\">Turn all items on</button>\n        <button type=\"button\" data-display-action=\"off\">Turn all items off</button>\n      </div>\n    ";
 		let n = this.querySelector("ha-form");
-		n.hass = this._hass, n.data = this._config || {}, n.schema = t, n.computeLabel = (e) => this.getLabel(e), n.addEventListener("value-changed", (e) => {
+		n.schema = t, n.computeLabel = (e) => this.getLabel(e), n.addEventListener("value-changed", (e) => {
 			this.updateConfig(e.detail.value);
 		}), this.querySelectorAll("[data-display-action]").forEach((t) => {
 			t.addEventListener("click", () => {
@@ -85,14 +85,23 @@ var e = [
 					r[e] = n;
 				}), this.updateConfig(r);
 			});
-		});
+		}), this._rendered = !0, this.updateForm();
 	}
 	updateConfig(e) {
-		this._config = e, this.dispatchEvent(new CustomEvent("config-changed", {
+		this._config = e, this.updateForm(), this.dispatchEvent(new CustomEvent("config-changed", {
 			detail: { config: e },
 			bubbles: !0,
 			composed: !0
-		})), this.render();
+		}));
+	}
+	updateForm() {
+		if (!this._hass) return;
+		if (!this._rendered) {
+			this.render();
+			return;
+		}
+		let e = this.querySelector("ha-form");
+		e && (e.hass = this._hass, e.data = this._config || {});
 	}
 	getLabel(e) {
 		return {

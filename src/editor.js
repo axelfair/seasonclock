@@ -27,16 +27,16 @@ const EDITOR_SCHEMA = [
 export class SeasonClockCardEditor extends HTMLElement {
   setConfig(config) {
     this._config = config || {};
-    this.render();
+    this.updateForm();
   }
 
   set hass(hass) {
     this._hass = hass;
-    this.render();
+    this.updateForm();
   }
 
   render() {
-    if (!this._hass) {
+    if (!this._hass || this._rendered) {
       return;
     }
 
@@ -68,8 +68,6 @@ export class SeasonClockCardEditor extends HTMLElement {
     `;
 
     const form = this.querySelector("ha-form");
-    form.hass = this._hass;
-    form.data = this._config || {};
     form.schema = EDITOR_SCHEMA;
     form.computeLabel = (schema) => this.getLabel(schema);
     form.addEventListener("value-changed", (event) => {
@@ -86,16 +84,36 @@ export class SeasonClockCardEditor extends HTMLElement {
         this.updateConfig(nextConfig);
       });
     });
+
+    this._rendered = true;
+    this.updateForm();
   }
 
   updateConfig(config) {
     this._config = config;
+    this.updateForm();
     this.dispatchEvent(new CustomEvent("config-changed", {
       detail: { config },
       bubbles: true,
       composed: true
     }));
-    this.render();
+  }
+
+  updateForm() {
+    if (!this._hass) {
+      return;
+    }
+    if (!this._rendered) {
+      this.render();
+      return;
+    }
+
+    const form = this.querySelector("ha-form");
+    if (!form) {
+      return;
+    }
+    form.hass = this._hass;
+    form.data = this._config || {};
   }
 
   getLabel(schema) {
