@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Season Clock Card Demo</title>
+    <style>
+      html,
+      body {
+        width: 100%;
+        min-height: 100%;
+        margin: 0;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        background: #050b12;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .demo-shell {
+        width: min(500px, 95vw);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-shell">
+      <season-clock-card></season-clock-card>
+    </div>
+    <script type="module" src="../src/season-clock-card.js"></script>
+    <script type="module">
+      const card = document.querySelector("season-clock-card");
+      card.hass = {
+        config: {
+          latitude: 37.323,
+          longitude: -122.0322,
+          location_name: "Cupertino, California"
+        }
+      };
+      card.setConfig({
+        title: "",
+        view_mode: "detailed",
+        show_mode_toggle: false,
+        location_name: "Cupertino, California",
+        latitude: 37.323,
+        longitude: -122.0322,
+        hemisphere: "northern",
+        card_size: 500
+      });
+    </script>
+  </body>
+</html>

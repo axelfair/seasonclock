@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 128" role="img" aria-label="Season Clock Card logo">
+  <defs>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="520" height="128" rx="18" fill="none"/>
+  <g fill="none" stroke-linecap="round" transform="translate(18 14)">
+    <circle cx="50" cy="50" r="44" fill="#07121a" stroke="#254152" stroke-width="2"/>
+    <path d="M50 6a44 44 0 0 1 44 44" stroke="#e9bf52" stroke-width="9"/>
+    <path d="M94 50a44 44 0 0 1-44 44" stroke="#d77a4b" stroke-width="9"/>
+    <path d="M50 94A44 44 0 0 1 6 50" stroke="#69aee8" stroke-width="9"/>
+    <path d="M6 50A44 44 0 0 1 50 6" stroke="#7acb8b" stroke-width="9"/>
+    <circle cx="50" cy="50" r="32" stroke="#9fb2bf" stroke-opacity=".28" stroke-width="2"/>
+    <path d="M50 50 68 19" stroke="#fff7dd" stroke-width="4.5" filter="url(#soft)"/>
+    <circle cx="50" cy="50" r="5" fill="#f7fbff" stroke="#07121a" stroke-width="2"/>
+  </g>
+  <text x="136" y="58" fill="#f3f8fc" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="34" font-weight="800">Season Clock Card</text>
+  <text x="138" y="86" fill="#8ea2b0" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="600">Location-aware seasonal year clock for Home Assistant</text>
+</svg>
