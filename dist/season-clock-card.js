@@ -5,14 +5,6 @@ var e = [
 		selector: { text: {} }
 	},
 	{
-		name: "view_mode",
-		selector: { select: { options: ["basic", "detailed"] } }
-	},
-	{
-		name: "show_mode_toggle",
-		selector: { boolean: {} }
-	},
-	{
 		name: "location_name",
 		selector: { text: {} }
 	},
@@ -99,7 +91,7 @@ var e = [
 customElements.define("season-clock-card-editor", t);
 //#endregion
 //#region src/styles.js
-var n = "\n  :host {\n    display: block;\n    --season-clock-card-size: min(var(--season-clock-size, 500px), 100%);\n    --season-clock-bg: #050b12;\n    --season-clock-card: #0a141d;\n    --season-clock-edge: rgba(210, 230, 245, 0.18);\n    --season-clock-text: #f3f8fc;\n    --season-clock-muted: #a7b6c1;\n    --season-clock-subtle: #6f8190;\n  }\n\n  ha-card {\n    display: block;\n    overflow: hidden;\n    border-radius: var(--ha-card-border-radius, 8px);\n    background:\n      radial-gradient(circle at 50% 48%, rgba(31, 52, 66, 0.42), transparent 53%),\n      linear-gradient(150deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),\n      var(--season-clock-card);\n    border: 1px solid var(--season-clock-edge);\n    box-shadow: var(--ha-card-box-shadow, 0 24px 70px rgba(0, 0, 0, 0.42));\n  }\n\n  .header {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    gap: 12px;\n    padding: 14px 16px 0;\n  }\n\n  .title {\n    color: var(--primary-text-color, var(--season-clock-text));\n    font-size: 15px;\n    font-weight: 700;\n    line-height: 1.2;\n  }\n\n  .mode-toggle {\n    display: grid;\n    grid-template-columns: 1fr 1fr;\n    gap: 2px;\n    padding: 3px;\n    border: 1px solid rgba(220, 242, 255, 0.16);\n    border-radius: 8px;\n    background: rgba(4, 12, 19, 0.56);\n  }\n\n  .mode-toggle button {\n    border: 0;\n    border-radius: 6px;\n    padding: 6px 9px;\n    background: transparent;\n    color: rgba(239, 248, 255, 0.7);\n    font: inherit;\n    font-size: 11px;\n    font-weight: 700;\n    line-height: 1;\n    cursor: pointer;\n  }\n\n  .mode-toggle button.active {\n    background: rgba(224, 240, 255, 0.15);\n    color: #fff;\n  }\n\n  .wrap {\n    width: var(--season-clock-card-size);\n    max-width: 100%;\n    aspect-ratio: 1;\n    margin: 0 auto;\n  }\n\n  .clock {\n    display: block;\n    width: 100%;\n    height: 100%;\n    color: var(--season-clock-text);\n    font-family: var(--paper-font-body1_-_font-family, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif);\n  }\n\n  .clock-shadow {\n    fill: rgba(3, 8, 13, 0.48);\n    stroke: rgba(205, 226, 240, 0.12);\n    stroke-width: 1;\n  }\n\n  .clock-face {\n    fill: rgba(4, 14, 22, 0.86);\n    stroke: rgba(211, 228, 239, 0.16);\n    stroke-width: 1;\n  }\n\n  .season-arc {\n    fill: none;\n    stroke-linecap: butt;\n    stroke-width: 22;\n    opacity: 0.94;\n  }\n\n  .ring-guide {\n    fill: none;\n    stroke: rgba(218, 234, 244, 0.14);\n    stroke-width: 1;\n  }\n\n  .tick {\n    stroke: rgba(231, 241, 248, 0.18);\n    stroke-width: 0.7;\n    stroke-linecap: round;\n  }\n\n  .tick.month {\n    stroke: rgba(245, 249, 252, 0.76);\n    stroke-width: 1.7;\n  }\n\n  .season-label,\n  .event-label,\n  .event-date {\n    text-anchor: middle;\n    dominant-baseline: middle;\n    letter-spacing: 0;\n  }\n\n  .season-label {\n    font-size: 9px;\n    font-weight: 760;\n  }\n\n  .season-label .season-icon {\n    font-size: 11px;\n    font-weight: 600;\n  }\n\n  .event-line {\n    stroke: rgba(244, 248, 251, 0.72);\n    stroke-width: 1.3;\n    stroke-linecap: round;\n  }\n\n  .event-dot {\n    fill: #f7fbff;\n    stroke: rgba(4, 12, 18, 0.78);\n    stroke-width: 1;\n  }\n\n  .event-label {\n    fill: rgba(238, 245, 249, 0.9);\n    font-size: 7.2px;\n    font-weight: 760;\n    text-transform: uppercase;\n  }\n\n  .event-date {\n    fill: var(--season-clock-muted);\n    font-size: 7px;\n    font-weight: 650;\n  }\n\n  .hand {\n    stroke: rgba(255, 250, 229, 0.82);\n    stroke-width: 2.2;\n    stroke-linecap: round;\n    filter: url(\"#handGlow\");\n  }\n\n  .pivot-halo {\n    fill: rgba(255, 255, 255, 0.12);\n  }\n\n  .pivot {\n    fill: #f7fbff;\n    stroke: rgba(5, 12, 18, 0.75);\n    stroke-width: 1.2;\n  }\n\n  .center-readout {\n    text-anchor: middle;\n    dominant-baseline: middle;\n  }\n\n  .weekday {\n    fill: var(--season-clock-muted);\n    font-size: 11px;\n    font-weight: 650;\n  }\n\n  .date {\n    fill: var(--season-clock-text);\n    font-size: 15px;\n    font-weight: 760;\n  }\n\n  .day-text {\n    fill: #f1c84e;\n    font-size: 17px;\n    font-weight: 850;\n  }\n\n  .season-text {\n    font-size: 17px;\n    font-weight: 780;\n  }\n\n  .hemisphere,\n  .location {\n    fill: var(--season-clock-muted);\n    font-size: 10.5px;\n    font-weight: 600;\n  }\n\n  .location {\n    fill: var(--season-clock-subtle);\n  }\n", r = {
+var n = "\n  :host {\n    display: block;\n    --season-clock-card-size: min(var(--season-clock-size, 500px), 100%);\n    --season-clock-text: #f3f8fc;\n    --season-clock-muted: #a7b6c1;\n    --season-clock-subtle: #6f8190;\n  }\n\n  ha-card {\n    display: block;\n    overflow: hidden;\n    border-radius: var(--ha-card-border-radius, 8px);\n    background: transparent;\n    border: 0;\n    box-shadow: none;\n  }\n\n  .header {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    gap: 12px;\n    padding: 14px 16px 0;\n  }\n\n  .title {\n    color: var(--primary-text-color, var(--season-clock-text));\n    font-size: 15px;\n    font-weight: 700;\n    line-height: 1.2;\n  }\n\n  .wrap {\n    width: var(--season-clock-card-size);\n    max-width: 100%;\n    aspect-ratio: 1;\n    margin: 0 auto;\n  }\n\n  .clock {\n    display: block;\n    width: 100%;\n    height: 100%;\n    color: var(--season-clock-text);\n    font-family: var(--paper-font-body1_-_font-family, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif);\n  }\n\n  .clock-shadow {\n    fill: transparent;\n    stroke: rgba(205, 226, 240, 0.12);\n    stroke-width: 1;\n  }\n\n  .clock-face {\n    fill: transparent;\n    stroke: rgba(211, 228, 239, 0.16);\n    stroke-width: 1;\n  }\n\n  .season-arc {\n    fill: none;\n    stroke-linecap: butt;\n    stroke-width: 22;\n    opacity: 0.94;\n  }\n\n  .ring-guide {\n    fill: none;\n    stroke: rgba(218, 234, 244, 0.14);\n    stroke-width: 1;\n  }\n\n  .tick {\n    stroke: rgba(231, 241, 248, 0.18);\n    stroke-width: 0.7;\n    stroke-linecap: round;\n  }\n\n  .tick.month {\n    stroke: rgba(245, 249, 252, 0.76);\n    stroke-width: 1.7;\n  }\n\n  .season-label,\n  .event-label,\n  .event-date {\n    text-anchor: middle;\n    dominant-baseline: middle;\n    letter-spacing: 0;\n  }\n\n  .season-label {\n    font-size: 9px;\n    font-weight: 760;\n  }\n\n  .season-label .season-icon {\n    font-size: 11px;\n    font-weight: 600;\n  }\n\n  .event-line {\n    stroke: rgba(244, 248, 251, 0.72);\n    stroke-width: 1.3;\n    stroke-linecap: round;\n  }\n\n  .event-dot {\n    fill: #f7fbff;\n    stroke: rgba(4, 12, 18, 0.78);\n    stroke-width: 1;\n  }\n\n  .event-label {\n    fill: rgba(238, 245, 249, 0.9);\n    font-size: 7.2px;\n    font-weight: 760;\n    text-transform: uppercase;\n  }\n\n  .event-date {\n    fill: var(--season-clock-muted);\n    font-size: 7px;\n    font-weight: 650;\n  }\n\n  .hand {\n    stroke: rgba(255, 250, 229, 0.82);\n    stroke-width: 2.2;\n    stroke-linecap: round;\n    filter: url(\"#handGlow\");\n  }\n\n  .pivot-halo {\n    fill: rgba(255, 255, 255, 0.12);\n  }\n\n  .pivot {\n    fill: #f7fbff;\n    stroke: rgba(5, 12, 18, 0.75);\n    stroke-width: 1.2;\n  }\n\n  .center-readout {\n    text-anchor: middle;\n    dominant-baseline: middle;\n  }\n\n  .weekday {\n    fill: var(--season-clock-muted);\n    font-size: 11px;\n    font-weight: 650;\n  }\n\n  .date {\n    fill: var(--season-clock-text);\n    font-size: 15px;\n    font-weight: 760;\n  }\n\n  .day-text {\n    fill: #f1c84e;\n    font-size: 17px;\n    font-weight: 850;\n  }\n\n  .season-text {\n    font-size: 17px;\n    font-weight: 780;\n  }\n\n  .hemisphere,\n  .location {\n    fill: var(--season-clock-muted);\n    font-size: 10.5px;\n    font-weight: 600;\n  }\n\n  .location {\n    fill: var(--season-clock-subtle);\n  }\n", r = {
 	Spring: "#7acb8b",
 	Summer: "#e9bf52",
 	Autumn: "#d77a4b",
@@ -285,8 +277,6 @@ function x(e) {
 //#endregion
 //#region src/season-clock-card.js
 var S = {
-	view_mode: "detailed",
-	show_mode_toggle: !1,
 	location_name: "Cupertino, California",
 	latitude: 37.323,
 	longitude: -122.0322,
@@ -313,23 +303,19 @@ var S = {
 	handLength: 166
 }, T = class extends HTMLElement {
 	constructor() {
-		super(), this.attachShadow({ mode: "open" }), this._config = { ...S }, this._mode = S.view_mode;
+		super(), this.attachShadow({ mode: "open" }), this._config = { ...S };
 	}
 	static getConfigElement() {
 		return document.createElement("season-clock-card-editor");
 	}
 	static getStubConfig() {
-		return {
-			type: "custom:season-clock-card",
-			view_mode: "detailed",
-			show_mode_toggle: !0
-		};
+		return { type: "custom:season-clock-card" };
 	}
 	setConfig(e) {
 		this._config = {
 			...S,
 			...e
-		}, this._mode = this._config.view_mode === "basic" ? "basic" : "detailed", this.render();
+		}, this.render();
 	}
 	set hass(e) {
 		this._hass = e, this.render();
@@ -339,36 +325,22 @@ var S = {
 	}
 	render() {
 		if (!this.shadowRoot) return;
-		let e = this.getClockModel(), t = this.booleanConfig("show_mode_toggle"), r = this._config.title || "";
+		let e = this._config.title || "", t = this.getClockModel();
 		this.shadowRoot.innerHTML = `
       <style>${n}</style>
       <ha-card style="--season-clock-size: ${Number(this._config.card_size) || 500}px">
-        ${r || t ? `
+        ${e ? `
           <div class="header">
-            ${r ? `<div class="title">${this.escape(r)}</div>` : "<span></span>"}
-            ${t ? this.renderModeToggle() : ""}
+            <div class="title">${this.escape(e)}</div>
           </div>
         ` : ""}
         <div class="wrap">
-          ${this.renderSvg(e)}
+          ${this.renderSvg(t)}
         </div>
       </ha-card>
-    `, this.shadowRoot.querySelectorAll("[data-mode]").forEach((e) => {
-			e.addEventListener("click", () => {
-				this._mode = e.dataset.mode, this.render();
-			});
-		});
-	}
-	renderModeToggle() {
-		return `
-      <div class="mode-toggle" role="group" aria-label="Season clock mode">
-        <button type="button" data-mode="basic" class="${this._mode === "basic" ? "active" : ""}">Basic</button>
-        <button type="button" data-mode="detailed" class="${this._mode === "detailed" ? "active" : ""}">Detailed</button>
-      </div>
     `;
 	}
 	renderSvg(e) {
-		let t = this._mode === "detailed";
 		return `
       <svg class="clock" viewBox="0 0 500 500" role="img" aria-label="Season clock">
         <defs>
@@ -384,12 +356,12 @@ var S = {
         <circle class="clock-face" cx="250" cy="250" r="154"></circle>
         ${this.renderSeasonArcs(e)}
         ${this.renderTicks(e)}
-        ${this.renderEventMarkers(e, t)}
+        ${this.renderEventMarkers(e)}
         ${this.renderSeasonLabels(e)}
         <line class="hand" x1="250" y1="250" x2="${e.handPoint.x}" y2="${e.handPoint.y}"></line>
         <circle class="pivot-halo" cx="250" cy="250" r="11"></circle>
         <circle class="pivot" cx="250" cy="250" r="5.5"></circle>
-        ${this.renderCenterReadout(e, t)}
+        ${this.renderCenterReadout(e)}
       </svg>
     `;
 	}
@@ -413,13 +385,13 @@ var S = {
 		}
 		return `<g class="ticks">${i.join("")}</g>`;
 	}
-	renderEventMarkers(e, t) {
-		return `<g class="event-markers">${e.events.filter((e) => this.shouldShowEvent(e)).map((n) => {
-			let r = _(d(new Date(e.year, n.month, n.day)), e.totalDays), i = v(C, r, w.eventInner), a = v(C, r, w.eventOuter), o = v(C, r, w.eventLabel);
+	renderEventMarkers(e) {
+		return `<g class="event-markers">${e.events.filter((e) => this.shouldShowEvent(e)).map((t) => {
+			let n = _(d(new Date(e.year, t.month, t.day)), e.totalDays), r = v(C, n, w.eventInner), i = v(C, n, w.eventOuter), a = v(C, n, w.eventLabel);
 			return `
-          <line class="event-line" x1="${i.x}" y1="${i.y}" x2="${a.x}" y2="${a.y}"></line>
-          <circle class="event-dot" cx="${a.x}" cy="${a.y}" r="3"></circle>
-          ${t ? this.renderEventLabel(n, o) : ""}
+          <line class="event-line" x1="${r.x}" y1="${r.y}" x2="${i.x}" y2="${i.y}"></line>
+          <circle class="event-dot" cx="${i.x}" cy="${i.y}" r="3"></circle>
+          ${this.renderEventLabel(t, a)}
         `;
 		}).join("")}</g>`;
 	}
@@ -442,13 +414,13 @@ var S = {
       `;
 		}).join("")}</g>` : "";
 	}
-	renderCenterReadout(e, t) {
-		let n = [];
-		if (this.booleanConfig("show_date") && (n.push(`<text class="weekday" x="250" y="184">${e.weekday}</text>`), n.push(`<text class="date" x="250" y="205">${e.dateLabel}</text>`)), this.booleanConfig("show_day_number") && n.push(`<text class="day-text" x="250" y="231">Day ${e.dayOfYear} of ${e.totalDays}</text>`), this.booleanConfig("show_season_name")) {
-			let a = this.booleanConfig("show_icons") ? `${i[e.currentSeason.name]} ` : "";
-			n.push(`<text class="season-text" x="250" y="${t ? 286 : 300}" fill="${r[e.currentSeason.name]}">${a}${e.currentSeason.name}</text>`);
+	renderCenterReadout(e) {
+		let t = [];
+		if (this.booleanConfig("show_date") && (t.push(`<text class="weekday" x="250" y="184">${e.weekday}</text>`), t.push(`<text class="date" x="250" y="205">${e.dateLabel}</text>`)), this.booleanConfig("show_day_number") && t.push(`<text class="day-text" x="250" y="231">Day ${e.dayOfYear} of ${e.totalDays}</text>`), this.booleanConfig("show_season_name")) {
+			let n = this.booleanConfig("show_icons") ? `${i[e.currentSeason.name]} ` : "";
+			t.push(`<text class="season-text" x="250" y="286" fill="${r[e.currentSeason.name]}">${n}${e.currentSeason.name}</text>`);
 		}
-		return t && this.booleanConfig("show_location") && (n.push(`<text class="hemisphere" x="250" y="314">${e.hemisphere === "north" ? "Northern Hemisphere" : "Southern Hemisphere"}</text>`), n.push(`<text class="location" x="250" y="334">${this.escape(e.locationName)}</text>`)), `<g class="center-readout" aria-hidden="true">${n.join("")}</g>`;
+		return this.booleanConfig("show_location") && (t.push(`<text class="hemisphere" x="250" y="314">${e.hemisphere === "north" ? "Northern Hemisphere" : "Southern Hemisphere"}</text>`), t.push(`<text class="location" x="250" y="334">${this.escape(e.locationName)}</text>`)), `<g class="center-readout" aria-hidden="true">${t.join("")}</g>`;
 	}
 	getClockModel() {
 		let e = /* @__PURE__ */ new Date(), t = e.getFullYear(), n = u(t) ? 366 : 365, r = d(e), i = this.getLatitude(), a = g(this._config.hemisphere, i), f = a === "north" ? o : s, h = p(a === "north" ? c : l, t, n);

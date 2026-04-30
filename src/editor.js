@@ -1,7 +1,5 @@
 const EDITOR_SCHEMA = [
   { name: "title", selector: { text: {} } },
-  { name: "view_mode", selector: { select: { options: ["basic", "detailed"] } } },
-  { name: "show_mode_toggle", selector: { boolean: {} } },
   { name: "location_name", selector: { text: {} } },
   { name: "latitude", selector: { number: { mode: "box" } } },
   { name: "longitude", selector: { number: { mode: "box" } } },

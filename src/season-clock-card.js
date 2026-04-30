@@ -21,8 +21,6 @@ import {
 } from "./utils.js";
 
 const DEFAULT_CONFIG = {
-  view_mode: "detailed",
-  show_mode_toggle: false,
   location_name: "Cupertino, California",
   latitude: 37.323,
   longitude: -122.0322,
@@ -57,7 +55,6 @@ class SeasonClockCard extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" });
     this._config = { ...DEFAULT_CONFIG };
-    this._mode = DEFAULT_CONFIG.view_mode;
   }
 
   static getConfigElement() {
@@ -66,15 +63,12 @@ class SeasonClockCard extends HTMLElement {
 
   static getStubConfig() {
     return {
-      type: "custom:season-clock-card",
-      view_mode: "detailed",
-      show_mode_toggle: true
+      type: "custom:season-clock-card"
     };
   }
 
   setConfig(config) {
     this._config = { ...DEFAULT_CONFIG, ...config };
-    this._mode = this._config.view_mode === "basic" ? "basic" : "detailed";
     this.render();
   }
 
@@ -92,16 +86,14 @@ class SeasonClockCard extends HTMLElement {
       return;
     }
 
-    const model = this.getClockModel();
-    const showToggle = this.booleanConfig("show_mode_toggle");
     const title = this._config.title || "";
+    const model = this.getClockModel();
     this.shadowRoot.innerHTML = `
       <style>${CARD_STYLES}</style>
       <ha-card style="--season-clock-size: ${Number(this._config.card_size) || 500}px">
-        ${title || showToggle ? `
+        ${title ? `
           <div class="header">
-            ${title ? `<div class="title">${this.escape(title)}</div>` : "<span></span>"}
-            ${showToggle ? this.renderModeToggle() : ""}
+            <div class="title">${this.escape(title)}</div>
           </div>
         ` : ""}
         <div class="wrap">
@@ -109,26 +101,9 @@ class SeasonClockCard extends HTMLElement {
         </div>
       </ha-card>
     `;
-
-    this.shadowRoot.querySelectorAll("[data-mode]").forEach((button) => {
-      button.addEventListener("click", () => {
-        this._mode = button.dataset.mode;
-        this.render();
-      });
-    });
-  }
-
-  renderModeToggle() {
-    return `
-      <div class="mode-toggle" role="group" aria-label="Season clock mode">
-        <button type="button" data-mode="basic" class="${this._mode === "basic" ? "active" : ""}">Basic</button>
-        <button type="button" data-mode="detailed" class="${this._mode === "detailed" ? "active" : ""}">Detailed</button>
-      </div>
-    `;
   }
 
   renderSvg(model) {
-    const isDetailed = this._mode === "detailed";
     return `
       <svg class="clock" viewBox="0 0 500 500" role="img" aria-label="Season clock">
         <defs>
@@ -144,12 +119,12 @@ class SeasonClockCard extends HTMLElement {
         <circle class="clock-face" cx="250" cy="250" r="154"></circle>
         ${this.renderSeasonArcs(model)}
         ${this.renderTicks(model)}
-        ${this.renderEventMarkers(model, isDetailed)}
+        ${this.renderEventMarkers(model)}
         ${this.renderSeasonLabels(model)}
         <line class="hand" x1="250" y1="250" x2="${model.handPoint.x}" y2="${model.handPoint.y}"></line>
         <circle class="pivot-halo" cx="250" cy="250" r="11"></circle>
         <circle class="pivot" cx="250" cy="250" r="5.5"></circle>
-        ${this.renderCenterReadout(model, isDetailed)}
+        ${this.renderCenterReadout(model)}
       </svg>
     `;
   }
@@ -188,7 +163,7 @@ class SeasonClockCard extends HTMLElement {
     return `<g class="ticks">${ticks.join("")}</g>`;
   }
 
-  renderEventMarkers(model, isDetailed) {
+  renderEventMarkers(model) {
     const markers = model.events
       .filter((event) => this.shouldShowEvent(event))
       .map((event) => {
@@ -200,7 +175,7 @@ class SeasonClockCard extends HTMLElement {
         return `
           <line class="event-line" x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}"></line>
           <circle class="event-dot" cx="${outer.x}" cy="${outer.y}" r="3"></circle>
-          ${isDetailed ? this.renderEventLabel(event, label) : ""}
+          ${this.renderEventLabel(event, label)}
         `;
       }).join("");
     return `<g class="event-markers">${markers}</g>`;
@@ -234,7 +209,7 @@ class SeasonClockCard extends HTMLElement {
     return `<g class="season-labels">${labels}</g>`;
   }
 
-  renderCenterReadout(model, isDetailed) {
+  renderCenterReadout(model) {
     const rows = [];
     if (this.booleanConfig("show_date")) {
       rows.push(`<text class="weekday" x="250" y="184">${model.weekday}</text>`);
@@ -245,9 +220,9 @@ class SeasonClockCard extends HTMLElement {
     }
     if (this.booleanConfig("show_season_name")) {
       const icon = this.booleanConfig("show_icons") ? `${SEASON_ICONS[model.currentSeason.name]} ` : "";
-      rows.push(`<text class="season-text" x="250" y="${isDetailed ? 286 : 300}" fill="${SEASON_COLORS[model.currentSeason.name]}">${icon}${model.currentSeason.name}</text>`);
+      rows.push(`<text class="season-text" x="250" y="286" fill="${SEASON_COLORS[model.currentSeason.name]}">${icon}${model.currentSeason.name}</text>`);
     }
-    if (isDetailed && this.booleanConfig("show_location")) {
+    if (this.booleanConfig("show_location")) {
       rows.push(`<text class="hemisphere" x="250" y="314">${model.hemisphere === "north" ? "Northern Hemisphere" : "Southern Hemisphere"}</text>`);
       rows.push(`<text class="location" x="250" y="334">${this.escape(model.locationName)}</text>`);
     }

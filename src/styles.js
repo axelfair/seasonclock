@@ -2,9 +2,6 @@ export const CARD_STYLES = `
   :host {
     display: block;
     --season-clock-card-size: min(var(--season-clock-size, 500px), 100%);
-    --season-clock-bg: #050b12;
-    --season-clock-card: #0a141d;
-    --season-clock-edge: rgba(210, 230, 245, 0.18);
     --season-clock-text: #f3f8fc;
     --season-clock-muted: #a7b6c1;
     --season-clock-subtle: #6f8190;
@@ -14,12 +11,9 @@ export const CARD_STYLES = `
     display: block;
     overflow: hidden;
     border-radius: var(--ha-card-border-radius, 8px);
-    background:
-      radial-gradient(circle at 50% 48%, rgba(31, 52, 66, 0.42), transparent 53%),
-      linear-gradient(150deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
-      var(--season-clock-card);
-    border: 1px solid var(--season-clock-edge);
-    box-shadow: var(--ha-card-box-shadow, 0 24px 70px rgba(0, 0, 0, 0.42));
+    background: transparent;
+    border: 0;
+    box-shadow: none;
   }
 
   .header {
@@ -35,34 +29,6 @@ export const CARD_STYLES = `
     font-size: 15px;
     font-weight: 700;
     line-height: 1.2;
-  }
-
-  .mode-toggle {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px;
-    padding: 3px;
-    border: 1px solid rgba(220, 242, 255, 0.16);
-    border-radius: 8px;
-    background: rgba(4, 12, 19, 0.56);
-  }
-
-  .mode-toggle button {
-    border: 0;
-    border-radius: 6px;
-    padding: 6px 9px;
-    background: transparent;
-    color: rgba(239, 248, 255, 0.7);
-    font: inherit;
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 1;
-    cursor: pointer;
-  }
-
-  .mode-toggle button.active {
-    background: rgba(224, 240, 255, 0.15);
-    color: #fff;
   }
 
   .wrap {
@@ -81,13 +47,13 @@ export const CARD_STYLES = `
   }
 
   .clock-shadow {
-    fill: rgba(3, 8, 13, 0.48);
+    fill: transparent;
     stroke: rgba(205, 226, 240, 0.12);
     stroke-width: 1;
   }
 
   .clock-face {
-    fill: rgba(4, 14, 22, 0.86);
+    fill: transparent;
     stroke: rgba(211, 228, 239, 0.16);
     stroke-width: 1;
   }

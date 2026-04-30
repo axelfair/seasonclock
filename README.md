@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="Season Clock Card" width="520">
+  <img src="https://raw.githubusercontent.com/axelfair/seasonclock/main/assets/logo.svg" alt="Season Clock Card" width="520">
 </p>
 
 # Season Clock Card
@@ -7,14 +7,13 @@
 Season Clock Card is a Home Assistant Lovelace card that shows a clean, location-aware seasonal year clock. It is designed to feel like a polished dashboard widget rather than an infographic.
 
 <p align="center">
-  <img src="assets/preview.png" alt="Season Clock Card preview" width="500">
+  <img src="https://raw.githubusercontent.com/axelfair/seasonclock/main/assets/preview.png" alt="Season Clock Card preview" width="500">
 </p>
 
 ## Features
 
 - Circular seasonal year clock with spring, summer, autumn, and winter segments.
-- Basic and detailed view modes.
-- Optional mode toggle.
+- Fully configurable clock-face elements via YAML.
 - Location-aware Northern/Southern Hemisphere support.
 - Solstice and equinox markers.
 - Daily ticks and monthly markers.
@@ -77,17 +76,16 @@ JavaScript module
 
 ```yaml
 type: custom:season-clock-card
-view_mode: basic
-show_mode_toggle: true
+show_location: false
+show_solstice_labels: false
+show_equinox_labels: false
 ```
 
-Detailed example:
+Fully customised example:
 
 ```yaml
 type: custom:season-clock-card
 title: Season Clock
-view_mode: detailed
-show_mode_toggle: true
 location_name: Cupertino, California
 latitude: 37.323
 longitude: -122.0322
@@ -110,9 +108,7 @@ show_icons: true
 | --- | --- | --- | --- |
 | `type` | string | required | Must be `custom:season-clock-card`. |
 | `title` | string | empty | Optional card title shown above the clock. |
-| `view_mode` | string | `detailed` | `basic` hides detailed labels/location; `detailed` shows the full dashboard readout. |
-| `show_mode_toggle` | boolean | `false` | Shows a Basic/Detailed toggle in the card header. |
-| `location_name` | string | `Cupertino, California` | Location label shown in detailed mode. |
+| `location_name` | string | `Cupertino, California` | Location label shown when `show_location` is enabled. |
 | `latitude` | number | Home Assistant latitude or `37.323` | Used for automatic hemisphere detection. |
 | `longitude` | number | Home Assistant longitude or `-122.0322` | Reserved for location configuration parity. |
 | `hemisphere` | string | `auto` | `auto`, `northern`, or `southern`. |
@@ -120,7 +116,7 @@ show_icons: true
 | `show_date` | boolean | `true` | Shows weekday and date. |
 | `show_day_number` | boolean | `true` | Shows day-of-year. |
 | `show_season_name` | boolean | `true` | Shows season labels and centre season. |
-| `show_location` | boolean | `true` | Shows hemisphere and location in detailed mode. |
+| `show_location` | boolean | `true` | Shows hemisphere and location. |
 | `show_solstice_labels` | boolean | `true` | Shows solstice markers and labels. |
 | `show_equinox_labels` | boolean | `true` | Shows equinox markers and labels. |
 | `show_month_markers` | boolean | `true` | Shows longer monthly tick marks. |
