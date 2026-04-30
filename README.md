@@ -86,6 +86,7 @@ Fully customised example:
 ```yaml
 type: custom:season-clock-card
 title: Season Clock
+location_source: home
 location_name: Cupertino, California
 latitude: 37.323
 longitude: -122.0322
@@ -108,9 +109,11 @@ show_icons: true
 | --- | --- | --- | --- |
 | `type` | string | required | Must be `custom:season-clock-card`. |
 | `title` | string | empty | Optional card title shown above the clock. |
+| `location_source` | string | `home` | `home`, `entity`, or `manual`. |
+| `location_entity` | string | empty | Entity with `latitude` and `longitude` attributes when `location_source: entity`. |
 | `location_name` | string | `Cupertino, California` | Location label shown when `show_location` is enabled. |
-| `latitude` | number | Home Assistant latitude or `37.323` | Used for automatic hemisphere detection. |
-| `longitude` | number | Home Assistant longitude or `-122.0322` | Reserved for location configuration parity. |
+| `latitude` | number | empty | Manual latitude when `location_source: manual`. |
+| `longitude` | number | empty | Manual longitude when `location_source: manual`. |
 | `hemisphere` | string | `auto` | `auto`, `northern`, or `southern`. |
 | `card_size` | number | `500` | Clock size in pixels. |
 | `show_date` | boolean | `true` | Shows weekday and date. |
@@ -127,7 +130,9 @@ show_icons: true
 
 The card uses the configured `hemisphere` when set to `northern` or `southern`.
 
-When `hemisphere: auto`, it uses the configured `latitude`. If `latitude` is not set, it falls back to Home Assistant's configured latitude via `hass.config.latitude`. Negative latitude selects Southern Hemisphere seasons; positive latitude selects Northern Hemisphere seasons.
+When `hemisphere: auto`, it uses the selected location source. `location_source: home` uses Home Assistant's home latitude and longitude. `location_source: entity` reads an entity with `latitude` and `longitude` attributes, such as many person/device tracker style entities. `location_source: manual` uses the configured `latitude` and `longitude`.
+
+Negative latitude selects Southern Hemisphere seasons; positive latitude selects Northern Hemisphere seasons.
 
 The card does not request browser geolocation. For Home Assistant dashboards, configured coordinates are more predictable and avoid browser permission prompts.
 

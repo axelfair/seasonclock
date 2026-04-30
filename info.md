@@ -4,7 +4,7 @@
 
 Season Clock Card is a polished Home Assistant Lovelace card that shows a circular, location-aware seasonal year clock for your dashboard.
 
-It includes compact solstice/equinox markers, daily and monthly tick marks, configurable clock-face elements, and Northern/Southern Hemisphere support based on configured latitude or explicit hemisphere selection.
+It includes compact solstice/equinox markers, daily and monthly tick marks, configurable clock-face elements, and Northern/Southern Hemisphere support based on Home Assistant home location, a selected entity, manual coordinates, or explicit hemisphere selection.
 
 The design is intentionally dashboard-focused: dark, compact, readable, and suitable for Home Assistant wall panels or overview pages.
 

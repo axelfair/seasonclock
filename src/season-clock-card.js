@@ -21,9 +21,11 @@ import {
 } from "./utils.js";
 
 const DEFAULT_CONFIG = {
+  location_source: "home",
+  location_entity: "",
   location_name: "Cupertino, California",
-  latitude: 37.323,
-  longitude: -122.0322,
+  latitude: null,
+  longitude: null,
   hemisphere: "auto",
   card_size: 500,
   show_date: true,
@@ -234,8 +236,8 @@ class SeasonClockCard extends HTMLElement {
     const year = now.getFullYear();
     const totalDays = isLeapYear(year) ? 366 : 365;
     const dayOfYear = getDayOfYear(now);
-    const latitude = this.getLatitude();
-    const hemisphere = normalizeHemisphere(this._config.hemisphere, latitude);
+    const location = this.getLocation();
+    const hemisphere = normalizeHemisphere(this._config.hemisphere, location.latitude);
     const events = hemisphere === "north" ? NORTHERN_EVENTS : SOUTHERN_EVENTS;
     const starts = hemisphere === "north" ? NORTHERN_SEASON_STARTS : SOUTHERN_SEASON_STARTS;
     const segments = buildSeasonSegments(starts, year, totalDays);
@@ -249,7 +251,7 @@ class SeasonClockCard extends HTMLElement {
       events,
       segments,
       currentSeason,
-      locationName: this.getLocationName(),
+      locationName: location.name,
       handPoint: pointAt(CENTER, dayToAngle(dayOfYear, totalDays), LAYOUT.handLength),
       weekday: new Intl.DateTimeFormat(undefined, { weekday: "long" }).format(now),
       dateLabel: new Intl.DateTimeFormat(undefined, { day: "numeric", month: "long", year: "numeric" }).format(now)
@@ -257,17 +259,65 @@ class SeasonClockCard extends HTMLElement {
   }
 
   getLatitude() {
-    if (this._config.latitude !== undefined && this._config.latitude !== null) {
-      return Number(this._config.latitude);
-    }
-    return Number(this._hass?.config?.latitude || DEFAULT_CONFIG.latitude);
+    return this.getLocation().latitude;
   }
 
-  getLocationName() {
-    if (this._config.location_name) {
-      return this._config.location_name;
+  getLocation() {
+    const source = this._config.location_source || "home";
+    if (source === "entity") {
+      const entityLocation = this.getEntityLocation();
+      if (entityLocation) {
+        return entityLocation;
+      }
     }
-    return this._hass?.config?.location_name || DEFAULT_CONFIG.location_name;
+    if (source === "manual") {
+      const manualLocation = this.getManualLocation();
+      if (manualLocation) {
+        return manualLocation;
+      }
+    }
+    return this.getHomeLocation();
+  }
+
+  getHomeLocation() {
+    return {
+      latitude: Number(this._hass?.config?.latitude ?? DEFAULT_CONFIG.latitude ?? 37.323),
+      longitude: Number(this._hass?.config?.longitude ?? DEFAULT_CONFIG.longitude ?? -122.0322),
+      name: this._config.location_name || this._hass?.config?.location_name || DEFAULT_CONFIG.location_name
+    };
+  }
+
+  getManualLocation() {
+    const latitude = Number(this._config.latitude);
+    const longitude = Number(this._config.longitude);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return null;
+    }
+    return {
+      latitude,
+      longitude,
+      name: this._config.location_name || DEFAULT_CONFIG.location_name
+    };
+  }
+
+  getEntityLocation() {
+    const entityId = this._config.location_entity;
+    const state = entityId ? this._hass?.states?.[entityId] : null;
+    if (!state) {
+      return null;
+    }
+
+    const latitude = Number(state.attributes.latitude ?? state.attributes.lat);
+    const longitude = Number(state.attributes.longitude ?? state.attributes.lon ?? state.attributes.lng);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return null;
+    }
+
+    return {
+      latitude,
+      longitude,
+      name: this._config.location_name || state.attributes.friendly_name || entityId
+    };
   }
 
   shouldShowEvent(event) {
