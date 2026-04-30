@@ -20,7 +20,7 @@ Season Clock Card is a Home Assistant Lovelace card that shows a clean, location
 - Daily ticks and monthly markers.
 - Compact centre readout for date, day-of-year, season, hemisphere, and location.
 - Configurable card size and display options.
-- HACS custom Lovelace repository ready.
+- HACS custom dashboard repository ready.
 
 ## Installation
 
@@ -37,7 +37,7 @@ https://github.com/axelfair/seasonclock
 3. Open the three-dot menu.
 4. Select Custom repositories.
 5. Paste the GitHub repository URL.
-6. Set category to Lovelace.
+6. Set category to Dashboard.
 7. Click Add.
 8. Search for Season Clock Card.
 9. Install.
@@ -160,32 +160,6 @@ Confirm the built card exists at:
 ```text
 dist/season-clock-card.js
 ```
-
-## Preparing for GitHub / HACS
-
-Initial local repository setup:
-
-```sh
-git init
-git add .
-git commit -m "Prepare Season Clock Card for HACS"
-```
-
-After creating the GitHub repo:
-
-```sh
-git remote add origin REPLACE_WITH_GITHUB_REPO_URL
-git branch -M main
-git push -u origin main
-```
-
-Then create a release:
-
-```text
-v0.1.0
-```
-
-HACS custom repository installation should point to the GitHub repo URL.
 
 ## Support
 
