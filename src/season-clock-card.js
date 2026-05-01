@@ -5,7 +5,6 @@ import {
   NORTHERN_EVENTS,
   NORTHERN_SEASON_STARTS,
   SEASON_COLORS,
-  SEASON_ICONS,
   SOUTHERN_EVENTS,
   SOUTHERN_SEASON_STARTS,
   buildSeasonSegments,
@@ -13,7 +12,6 @@ import {
   describeArc,
   getCurrentSeason,
   getDayOfYear,
-  getMidpointDay,
   getMonthStartDays,
   isLeapYear,
   normalizeHemisphere,
@@ -39,6 +37,7 @@ const DEFAULT_CONFIG = {
   show_month_markers: true,
   show_day_ticks: true,
   show_icons: true,
+  show_moon_phase: true,
   show_weather: true
 };
 
@@ -70,6 +69,7 @@ const LAYOUT = {
   seasonLabel: 136,
   progressRadius: 155,
   todayRadius: 207,
+  moonRadius: 166,
   handLength: 166
 };
 
@@ -132,6 +132,32 @@ class SeasonClockCard extends HTMLElement {
     return `
       <svg class="clock" viewBox="0 0 500 500" role="img" aria-label="Season clock">
         <defs>
+          <radialGradient id="dialGradient" cx="48%" cy="42%" r="62%">
+            <stop offset="0%" stop-color="#182129"></stop>
+            <stop offset="58%" stop-color="#071016"></stop>
+            <stop offset="100%" stop-color="#010407"></stop>
+          </radialGradient>
+          <radialGradient id="glassGradient" cx="32%" cy="24%" r="78%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"></stop>
+            <stop offset="36%" stop-color="#ffffff" stop-opacity="0.045"></stop>
+            <stop offset="70%" stop-color="#000000" stop-opacity="0.03"></stop>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0.32"></stop>
+          </radialGradient>
+          <radialGradient id="complicationFaceGradient" cx="34%" cy="28%" r="76%">
+            <stop offset="0%" stop-color="#f7fbfb"></stop>
+            <stop offset="54%" stop-color="#dfe8e9"></stop>
+            <stop offset="100%" stop-color="#aebabe"></stop>
+          </radialGradient>
+          <linearGradient id="handMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fff8d8"></stop>
+            <stop offset="48%" stop-color="#d5dde2"></stop>
+            <stop offset="100%" stop-color="#8a969f"></stop>
+          </linearGradient>
+          <radialGradient id="pivotMetal" cx="35%" cy="28%" r="72%">
+            <stop offset="0%" stop-color="#ffffff"></stop>
+            <stop offset="44%" stop-color="#c8d0d6"></stop>
+            <stop offset="100%" stop-color="#59646d"></stop>
+          </radialGradient>
           <filter id="handGlow" x="-40%" y="-40%" width="180%" height="180%">
             <feGaussianBlur stdDeviation="1.8" result="blur"></feGaussianBlur>
             <feMerge>
@@ -139,20 +165,52 @@ class SeasonClockCard extends HTMLElement {
               <feMergeNode in="SourceGraphic"></feMergeNode>
             </feMerge>
           </filter>
+          <filter id="seasonLift" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.38"></feDropShadow>
+            <feDropShadow dx="0" dy="-0.8" stdDeviation="0.7" flood-color="#ffffff" flood-opacity="0.18"></feDropShadow>
+          </filter>
+          <filter id="complicationInset" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="1.6" stdDeviation="1.2" flood-color="#000000" flood-opacity="0.42"></feDropShadow>
+          </filter>
+          <filter id="dialInnerShadow" x="-12%" y="-12%" width="124%" height="124%">
+            <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#000000" flood-opacity="0.55"></feDropShadow>
+          </filter>
         </defs>
         <circle class="clock-shadow" cx="250" cy="250" r="213"></circle>
+        <circle class="outer-rim-glow" cx="250" cy="250" r="213"></circle>
         <circle class="clock-face" cx="250" cy="250" r="154"></circle>
+        <circle class="dial-texture" cx="250" cy="250" r="153"></circle>
         ${this.renderSeasonArcs(model)}
         ${this.renderMonthNames(model)}
         ${this.renderTicks(model)}
         ${this.renderEventMarkers(model)}
-        ${this.renderSeasonLabels(model)}
         ${this.renderProgressLayer(model)}
-        <line class="hand" x1="250" y1="250" x2="${model.handPoint.x}" y2="${model.handPoint.y}"></line>
-        <circle class="pivot-halo" cx="250" cy="250" r="11"></circle>
-        <circle class="pivot" cx="250" cy="250" r="5.5"></circle>
         ${this.renderCenterReadout(model)}
+        <circle class="clock-glass" cx="250" cy="250" r="207"></circle>
+        <path class="glass-sheen" d="M 106 174 C 162 87 306 64 388 136"></path>
+        <line class="hand-shadow" x1="250" y1="252" x2="${model.handPoint.x}" y2="${model.handPoint.y + 2}"></line>
+        <line class="hand" x1="250" y1="250" x2="${model.handPoint.x}" y2="${model.handPoint.y}"></line>
+        <line class="hand-highlight" x1="250" y1="250" x2="${model.handPoint.x}" y2="${model.handPoint.y}"></line>
+        ${this.renderMoonPhase(model)}
+        <circle class="pivot-shadow" cx="250" cy="253" r="12"></circle>
+        <circle class="pivot-halo" cx="250" cy="250" r="11"></circle>
+        <circle class="pivot" cx="250" cy="250" r="6.8"></circle>
+        <circle class="pivot-highlight" cx="247.8" cy="247.3" r="2"></circle>
       </svg>
+    `;
+  }
+
+  renderMoonPhase(model) {
+    if (!this.booleanConfig("show_moon_phase")) {
+      return "";
+    }
+
+    const point = pointAt(CENTER, dayToAngle(model.dayOfYear, model.totalDays), LAYOUT.moonRadius);
+    return `
+      <g class="moon-phase" aria-label="${this.escape(model.moonPhase.label)}">
+        <circle class="moon-badge" cx="${point.x}" cy="${point.y}" r="12"></circle>
+        <text class="moon-icon" x="${point.x}" y="${point.y}">${model.moonPhase.icon}</text>
+      </g>
     `;
   }
 
@@ -180,6 +238,9 @@ class SeasonClockCard extends HTMLElement {
 
   renderSeasonArcs(model) {
     const guides = `
+      <circle class="ring-bevel" cx="250" cy="250" r="${LAYOUT.arcRadius}"></circle>
+      <circle class="ring-inner-shadow" cx="250" cy="250" r="${LAYOUT.arcRadius - 16}"></circle>
+      <circle class="ring-outer-highlight" cx="250" cy="250" r="${LAYOUT.arcRadius + 15}"></circle>
       <circle class="ring-guide" cx="250" cy="250" r="${LAYOUT.arcRadius + 12}"></circle>
       <circle class="ring-guide" cx="250" cy="250" r="${LAYOUT.arcRadius - 12}"></circle>
     `;
@@ -260,65 +321,111 @@ class SeasonClockCard extends HTMLElement {
     `;
   }
 
-  renderSeasonLabels(model) {
-    if (!this.booleanConfig("show_season_name")) {
-      return "";
+  renderCenterReadout(model) {
+    const complications = [];
+    const showDate = this.booleanConfig("show_date");
+    const showDayNumber = this.booleanConfig("show_day_number");
+    const showSeason = this.booleanConfig("show_season_name");
+    const showLocation = this.booleanConfig("show_location");
+    const showWeather = this.booleanConfig("show_weather") && model.weatherInfo;
+
+    if (showDate || showDayNumber) {
+      complications.push(this.renderComplication({
+        className: "date-complication",
+        x: 250,
+        y: 166,
+        radius: 40,
+        title: showDate ? model.weekday : "Year Day",
+        primary: showDate ? model.dateShort : `Day ${model.dayOfYear}`,
+        secondary: showDayNumber ? `${model.dayOfYear}/${model.totalDays}` : "",
+        accent: "#f1c84e"
+      }));
     }
 
-    const labels = model.segments.map((segment) => {
-      const midpoint = getMidpointDay(segment.start, segment.end, model.totalDays);
-      const point = pointAt(CENTER, dayToAngle(midpoint, model.totalDays), LAYOUT.seasonLabel);
-      const icon = this.booleanConfig("show_icons") ? `<tspan class="season-icon">${SEASON_ICONS[segment.name]} </tspan>` : "";
-      return `
-        <text class="season-label" x="${point.x}" y="${point.y}" fill="${SEASON_COLORS[segment.name]}">
-          ${icon}<tspan>${segment.name}</tspan>
-        </text>
-      `;
-    }).join("");
-    return `<g class="season-labels">${labels}</g>`;
+    if (showSeason) {
+      complications.push(this.renderComplication({
+        className: "season-complication",
+        x: 166,
+        y: 250,
+        radius: 40,
+        title: model.currentSeason.name,
+        primary: `${model.seasonProgress}%`,
+        secondary: "complete",
+        accent: SEASON_COLORS[model.currentSeason.name]
+      }));
+      complications.push(this.renderComplication({
+        className: "event-complication",
+        x: 334,
+        y: 250,
+        radius: 40,
+        title: "Next",
+        primary: this.formatEventShortLabel(model.nextEvent),
+        secondary: `${model.nextEvent.daysUntil} ${model.nextEvent.daysUntil === 1 ? "day" : "days"}`,
+        accent: SEASON_COLORS[model.nextEvent.name]
+      }));
+    }
+
+    if (showWeather) {
+      complications.push(this.renderComplication({
+        className: "weather-complication",
+        x: 250,
+        y: 334,
+        radius: 40,
+        title: "Weather",
+        primary: model.weatherInfo.icon,
+        secondary: model.weatherInfo.temperature,
+        accent: "#69aee8"
+      }));
+    } else if (showLocation) {
+      const hemisphere = model.hemisphere === "north" ? "Northern" : "Southern";
+      complications.push(this.renderComplication({
+        className: "place-complication",
+        x: 250,
+        y: 334,
+        radius: 40,
+        title: hemisphere,
+        primary: this.truncate(model.locationName, 9),
+        secondary: "Hemisphere",
+        accent: "#dfe8ee"
+      }));
+    }
+
+    return `<g class="center-readout" aria-hidden="true">${complications.join("")}</g>`;
   }
 
-  renderCenterReadout(model) {
-    const rows = [];
-    if (this.booleanConfig("show_date")) {
-      rows.push({ className: "weekday", text: model.weekday });
-      rows.push({ className: "date", text: model.dateLabel });
-    }
-    if (this.booleanConfig("show_day_number")) {
-      rows.push({ className: "day-text", text: `Day ${model.dayOfYear} of ${model.totalDays}` });
-    }
-    if (this.booleanConfig("show_season_name")) {
-      const icon = this.booleanConfig("show_icons") ? `${SEASON_ICONS[model.currentSeason.name]} ` : "";
-      rows.push({
-        className: "season-text",
-        fill: SEASON_COLORS[model.currentSeason.name],
-        text: `${icon}${model.currentSeason.name}`
-      });
-      rows.push({
-        className: "season-progress-text",
-        text: `${model.seasonProgress}% through ${model.currentSeason.name}`
-      });
-      rows.push({
-        className: "next-event",
-        text: `${model.nextEvent.shortLabel} in ${model.nextEvent.daysUntil} ${model.nextEvent.daysUntil === 1 ? "day" : "days"}`
-      });
-    }
-    if (this.booleanConfig("show_location")) {
-      rows.push({ className: "hemisphere", text: model.hemisphere === "north" ? "Northern Hemisphere" : "Southern Hemisphere" });
-      rows.push({ className: "location", text: model.locationName });
-    }
-    if (this.booleanConfig("show_weather") && model.weather) {
-      rows.push({ className: "weather", text: model.weather });
-    }
+  renderComplication({ className, x, y, radius, title, primary, secondary, accent }) {
+    const safeAccent = this.escape(accent || "#dfe8ee");
+    return `
+      <g class="complication ${className}">
+        <circle class="complication-socket" cx="${x}" cy="${y}" r="${radius + 7}"></circle>
+        <circle class="complication-socket-highlight" cx="${x - 1.4}" cy="${y - 1.4}" r="${radius + 5}"></circle>
+        <circle class="complication-shadow" cx="${x + 1.8}" cy="${y + 2.4}" r="${radius + 1}"></circle>
+        <circle class="complication-face" cx="${x}" cy="${y}" r="${radius}"></circle>
+        <circle class="complication-inner-shadow" cx="${x}" cy="${y}" r="${radius - 4}"></circle>
+        <circle class="complication-ring" cx="${x}" cy="${y}" r="${radius - 3}" stroke="${safeAccent}"></circle>
+        <line class="complication-marker" x1="${x}" y1="${y - radius + 8}" x2="${x}" y2="${y - radius + 15}" stroke="${safeAccent}"></line>
+        <text class="complication-title emboss-shadow" x="${x}" y="${y - 14.5}">${this.escape(this.truncate(title, 10))}</text>
+        <text class="complication-title" x="${x}" y="${y - 15}">${this.escape(this.truncate(title, 10))}</text>
+        <text class="complication-primary emboss-shadow" x="${x}" y="${y + 3.5}" fill="${safeAccent}">${this.escape(primary)}</text>
+        <text class="complication-primary" x="${x}" y="${y + 3}" fill="${safeAccent}">${this.escape(primary)}</text>
+        ${secondary ? `
+          <text class="complication-secondary emboss-shadow" x="${x}" y="${y + 19.5}">${this.escape(secondary)}</text>
+          <text class="complication-secondary" x="${x}" y="${y + 19}">${this.escape(secondary)}</text>
+        ` : ""}
+      </g>
+    `;
+  }
 
-    const lineHeight = rows.length > 7 ? 18.5 : 21;
-    const startY = 250 - ((rows.length - 1) * lineHeight / 2);
-    const text = rows.map((row, index) => {
-      const fill = row.fill ? ` fill="${row.fill}"` : "";
-      return `<text class="${row.className}" x="250" y="${startY + (index * lineHeight)}"${fill}>${this.escape(row.text)}</text>`;
-    }).join("");
+  truncate(value, maxLength) {
+    const text = String(value || "");
+    if (text.length <= maxLength) {
+      return text;
+    }
+    return `${text.slice(0, Math.max(0, maxLength - 1))}…`;
+  }
 
-    return `<g class="center-readout" aria-hidden="true">${text}</g>`;
+  formatEventShortLabel(event) {
+    return event.label.toLowerCase().includes("solstice") ? "Solstice" : "Equinox";
   }
 
   getClockModel() {
@@ -345,10 +452,13 @@ class SeasonClockCard extends HTMLElement {
       currentSeason,
       seasonProgress,
       nextEvent,
+      moonPhase: this.getMoonPhase(now),
       locationName: location.name,
       weather: this.getWeather(),
+      weatherInfo: this.getWeatherInfo(),
       handPoint: pointAt(CENTER, dayToAngle(dayOfYear, totalDays), LAYOUT.handLength),
       weekday: new Intl.DateTimeFormat(undefined, { weekday: "long" }).format(now),
+      dateShort: new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short" }).format(now),
       dateLabel: new Intl.DateTimeFormat(undefined, { day: "numeric", month: "long", year: "numeric" }).format(now)
     };
   }
@@ -372,6 +482,30 @@ class SeasonClockCard extends HTMLElement {
     });
     candidates.sort((a, b) => a.daysUntil - b.daysUntil);
     return candidates[0];
+  }
+
+  getMoonPhase(date) {
+    const phases = [
+      { icon: "🌑", label: "New Moon" },
+      { icon: "🌒", label: "Waxing Crescent" },
+      { icon: "🌓", label: "First Quarter" },
+      { icon: "🌔", label: "Waxing Gibbous" },
+      { icon: "🌕", label: "Full Moon" },
+      { icon: "🌖", label: "Waning Gibbous" },
+      { icon: "🌗", label: "Last Quarter" },
+      { icon: "🌘", label: "Waning Crescent" }
+    ];
+    const synodicMonth = 29.530588853;
+    const referenceNewMoonJulianDay = 2451550.1;
+    const julianDay = (date.getTime() / 86400000) + 2440587.5;
+    const age = ((julianDay - referenceNewMoonJulianDay) % synodicMonth + synodicMonth) % synodicMonth;
+    const index = Math.floor(((age / synodicMonth) * phases.length) + 0.5) % phases.length;
+
+    return {
+      ...phases[index],
+      age: Math.round(age * 10) / 10,
+      illumination: Math.round(((1 - Math.cos((2 * Math.PI * age) / synodicMonth)) / 2) * 100)
+    };
   }
 
   getLatitude() {
@@ -443,31 +577,32 @@ class SeasonClockCard extends HTMLElement {
   }
 
   getWeather() {
+    const weather = this.getWeatherInfo();
+    if (!weather) {
+      return "";
+    }
+    return [weather.condition, weather.temperature].filter(Boolean).join(" · ");
+  }
+
+  getWeatherInfo() {
     const entityId = this._config.weather_entity;
     const state = entityId ? this._hass?.states?.[entityId] : null;
     if (!state) {
-      return "";
+      return null;
     }
 
     const attributes = state.attributes || {};
     const unit = attributes.temperature_unit || this._hass?.config?.unit_system?.temperature || "";
     const temperature = this.formatTemperature(attributes.temperature, unit);
-    const forecast = Array.isArray(attributes.forecast) ? attributes.forecast[0] : null;
-    const high = this.formatTemperature(
-      attributes.temperature_high ?? attributes.high_temperature ?? attributes.high ?? forecast?.temperature,
-      unit
-    );
-    const low = this.formatTemperature(
-      attributes.temperature_low ?? attributes.low_temperature ?? attributes.low ?? attributes.templow ?? forecast?.templow ?? forecast?.low_temperature,
-      unit
-    );
     const condition = this.formatCondition(state.state);
-    const parts = [condition, temperature].filter(Boolean);
-    const range = high && low ? `${high}/${low}` : high || low;
-    if (range) {
-      parts.push(`H/L ${range}`);
+    if (!condition && !temperature) {
+      return null;
     }
-    return parts.join(" · ");
+    return {
+      condition,
+      temperature,
+      icon: this.getWeatherIcon(state.state)
+    };
   }
 
   formatTemperature(value, unit) {
@@ -500,6 +635,27 @@ class SeasonClockCard extends HTMLElement {
       "windy-variant": "Windy"
     };
     return labels[value] || String(value).replaceAll("_", " ").replaceAll("-", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  getWeatherIcon(value) {
+    const icons = {
+      "clear-night": "☾",
+      cloudy: "☁",
+      exceptional: "!",
+      fog: "≋",
+      hail: "◌",
+      lightning: "ϟ",
+      "lightning-rainy": "ϟ",
+      partlycloudy: "◐",
+      pouring: "☔",
+      rainy: "☂",
+      snowy: "✻",
+      "snowy-rainy": "❄",
+      sunny: "☀",
+      windy: "≋",
+      "windy-variant": "≋"
+    };
+    return icons[value] || "○";
   }
 
   describeTextArc(radius, startAngle, endAngle) {

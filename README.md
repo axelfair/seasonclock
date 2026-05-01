@@ -17,7 +17,8 @@ Season Clock Card is a Home Assistant Lovelace card that shows a clean, location
 - Location-aware Northern/Southern Hemisphere support.
 - Solstice and equinox markers.
 - Daily ticks and monthly markers.
-- Compact centre readout for date, day-of-year, season, hemisphere, and location.
+- Current moon phase icon calculated from the date.
+- Classic watch-style centre complications for date, season progress, next milestone, location, and weather.
 - Configurable card size and display options.
 - HACS custom dashboard repository ready.
 
@@ -109,6 +110,7 @@ show_month_names: true
 show_month_markers: true
 show_day_ticks: true
 show_icons: true
+show_moon_phase: true
 show_weather: true
 ```
 
@@ -136,6 +138,7 @@ show_weather: true
 | `show_month_markers` | boolean | `true` | Shows longer monthly tick marks. |
 | `show_day_ticks` | boolean | `true` | Shows subtle daily tick marks. |
 | `show_icons` | boolean | `true` | Shows compact seasonal icons. |
+| `show_moon_phase` | boolean | `true` | Shows a calculated moon phase icon at the tip of the clock hand. |
 | `show_weather` | boolean | `true` | Shows weather from `weather_entity` when configured. |
 
 ## Location and Hemisphere Detection

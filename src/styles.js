@@ -5,6 +5,11 @@ export const CARD_STYLES = `
     --season-clock-text: #f3f8fc;
     --season-clock-muted: #a7b6c1;
     --season-clock-subtle: #6f8190;
+    --clock-shadow-deep: rgba(0, 0, 0, 0.72);
+    --clock-shadow-soft: rgba(0, 0, 0, 0.36);
+    --clock-highlight: rgba(255, 255, 255, 0.22);
+    --clock-glass: rgba(255, 255, 255, 0.08);
+    --clock-rim: rgba(206, 220, 229, 0.42);
   }
 
   ha-card {
@@ -36,6 +41,9 @@ export const CARD_STYLES = `
     max-width: 100%;
     aspect-ratio: 1;
     margin: 0 auto;
+    filter:
+      drop-shadow(0 24px 42px var(--clock-shadow-deep))
+      drop-shadow(0 0 22px rgba(105, 174, 232, 0.08));
   }
 
   .clock {
@@ -48,21 +56,59 @@ export const CARD_STYLES = `
 
   .clock-shadow {
     fill: transparent;
-    stroke: rgba(205, 226, 240, 0.12);
-    stroke-width: 1;
+    stroke: rgba(236, 246, 252, 0.14);
+    stroke-width: 1.2;
+    filter: url("#dialInnerShadow");
+  }
+
+  .outer-rim-glow {
+    fill: none;
+    stroke: rgba(145, 183, 210, 0.16);
+    stroke-width: 5;
   }
 
   .clock-face {
-    fill: transparent;
-    stroke: rgba(211, 228, 239, 0.16);
-    stroke-width: 1;
+    fill: url("#dialGradient");
+    stroke: rgba(230, 241, 248, 0.16);
+    stroke-width: 1.2;
+  }
+
+  .dial-texture {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.035);
+    stroke-width: 16;
+    stroke-dasharray: 1 5;
+    opacity: 0.45;
   }
 
   .season-arc {
     fill: none;
     stroke-linecap: butt;
     stroke-width: 22;
-    opacity: 0.94;
+    opacity: 0.97;
+    filter: url("#seasonLift");
+  }
+
+  .ring-bevel {
+    fill: none;
+    stroke: rgba(0, 0, 0, 0.42);
+    stroke-width: 31;
+    filter: url("#seasonLift");
+  }
+
+  .ring-inner-shadow,
+  .ring-outer-highlight {
+    fill: none;
+  }
+
+  .ring-inner-shadow {
+    stroke: rgba(0, 0, 0, 0.5);
+    stroke-width: 2.5;
+  }
+
+  .ring-outer-highlight {
+    stroke: rgba(255, 255, 255, 0.18);
+    stroke-width: 1.4;
   }
 
   .ring-guide {
@@ -100,22 +146,11 @@ export const CARD_STYLES = `
     stroke-width: 1.8px;
   }
 
-  .season-label,
   .event-label,
   .event-date {
     text-anchor: middle;
     dominant-baseline: middle;
     letter-spacing: 0;
-  }
-
-  .season-label {
-    font-size: 9px;
-    font-weight: 760;
-  }
-
-  .season-label .season-icon {
-    font-size: 11px;
-    font-weight: 600;
   }
 
   .event-line {
@@ -168,21 +203,61 @@ export const CARD_STYLES = `
     stroke-width: 1;
   }
 
+  .hand-shadow {
+    stroke: rgba(0, 0, 0, 0.68);
+    stroke-width: 6.4;
+    stroke-linecap: round;
+    filter: blur(0.25px);
+  }
+
   .hand {
-    stroke: rgba(255, 250, 229, 0.82);
-    stroke-width: 2.2;
+    stroke: url("#handMetal");
+    stroke-width: 4.1;
     stroke-linecap: round;
     filter: url("#handGlow");
   }
 
+  .hand-highlight {
+    stroke: rgba(255, 255, 255, 0.74);
+    stroke-width: 1.05;
+    stroke-linecap: round;
+  }
+
+  .moon-phase {
+    pointer-events: none;
+  }
+
+  .moon-badge {
+    fill: rgba(5, 12, 18, 0.84);
+    stroke: rgba(255, 250, 229, 0.72);
+    stroke-width: 1.2;
+  }
+
+  .moon-icon {
+    font-size: 14px;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    alignment-baseline: central;
+  }
+
   .pivot-halo {
-    fill: rgba(255, 255, 255, 0.12);
+    fill: rgba(255, 255, 255, 0.14);
+    stroke: rgba(0, 0, 0, 0.38);
+    stroke-width: 1;
+  }
+
+  .pivot-shadow {
+    fill: rgba(0, 0, 0, 0.42);
   }
 
   .pivot {
-    fill: #f7fbff;
-    stroke: rgba(5, 12, 18, 0.75);
+    fill: url("#pivotMetal");
+    stroke: rgba(5, 12, 18, 0.78);
     stroke-width: 1.2;
+  }
+
+  .pivot-highlight {
+    fill: rgba(255, 255, 255, 0.7);
   }
 
   .center-readout {
@@ -190,42 +265,113 @@ export const CARD_STYLES = `
     dominant-baseline: middle;
   }
 
-  .weekday {
-    fill: var(--season-clock-muted);
-    font-size: 11px;
-    font-weight: 650;
+  .complication {
+    pointer-events: none;
   }
 
-  .date {
-    fill: var(--season-clock-text);
-    font-size: 15px;
-    font-weight: 760;
+  .complication-socket {
+    fill: rgba(0, 0, 0, 0.68);
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 1;
   }
 
-  .day-text {
-    fill: #f1c84e;
-    font-size: 17px;
-    font-weight: 850;
+  .complication-socket-highlight {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.1);
+    stroke-width: 1.1;
   }
 
-  .season-text {
-    font-size: 17px;
-    font-weight: 780;
+  .complication-shadow {
+    fill: rgba(0, 0, 0, 0.36);
   }
 
-  .hemisphere,
-  .location,
-  .season-progress-text,
-  .next-event,
-  .weather {
-    fill: var(--season-clock-muted);
-    font-size: 10.5px;
-    font-weight: 600;
+  .complication-face {
+    fill: url("#complicationFaceGradient");
+    stroke: rgba(255, 255, 255, 0.62);
+    stroke-width: 1.1;
+    filter: url("#complicationInset");
   }
 
-  .location,
-  .next-event,
-  .weather {
-    fill: var(--season-clock-subtle);
+  .complication-inner-shadow {
+    fill: none;
+    stroke: rgba(2, 8, 12, 0.24);
+    stroke-width: 5;
+  }
+
+  .complication-ring {
+    fill: none;
+    stroke-width: 1.15;
+    opacity: 0.76;
+  }
+
+  .complication-marker {
+    stroke-width: 1.2;
+    stroke-linecap: round;
+    opacity: 0.9;
+  }
+
+  .complication-title,
+  .complication-primary,
+  .complication-secondary {
+    text-anchor: middle;
+    dominant-baseline: middle;
+    letter-spacing: 0;
+  }
+
+  .complication-title {
+    fill: rgba(10, 20, 28, 0.8);
+    font-size: 7.8px;
+    font-weight: 820;
+    text-transform: uppercase;
+  }
+
+  .complication-primary {
+    font-size: 12.8px;
+    font-weight: 900;
+    paint-order: stroke;
+    stroke: rgba(239, 245, 246, 0.95);
+    stroke-width: 1px;
+  }
+
+  .complication-secondary {
+    fill: rgba(10, 20, 28, 0.68);
+    font-size: 8px;
+    font-weight: 720;
+  }
+
+  .emboss-shadow {
+    fill: rgba(255, 255, 255, 0.58);
+    stroke: none;
+  }
+
+  .place-complication .complication-primary,
+  .event-complication .complication-primary {
+    font-size: 10.4px;
+  }
+
+  .weather-complication .complication-primary {
+    font-size: 19px;
+    stroke-width: 0.7px;
+  }
+
+  .date-complication .complication-primary,
+  .season-complication .complication-primary {
+    font-size: 13.1px;
+  }
+
+  .clock-glass {
+    fill: url("#glassGradient");
+    stroke: rgba(255, 255, 255, 0.12);
+    stroke-width: 1;
+    pointer-events: none;
+  }
+
+  .glass-sheen {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.16);
+    stroke-width: 7;
+    stroke-linecap: round;
+    opacity: 0.42;
+    pointer-events: none;
   }
 `;
