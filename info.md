@@ -6,6 +6,12 @@ Season Clock Card is a polished Home Assistant Lovelace card that shows a circul
 
 It includes compact solstice/equinox markers, daily and monthly tick marks, optional weather readout, configurable clock-face elements, and Northern/Southern Hemisphere support based on Home Assistant home location, a selected entity, manual coordinates, or explicit hemisphere selection.
 
+<p align="center">
+  <a href="https://buymeacoffee.com/axelfair">
+    <img src="https://raw.githubusercontent.com/axelfair/seasonclock/main/assets/buymeacoffee.svg" alt="Buy me a coffee" width="420">
+  </a>
+</p>
+
 The design is intentionally dashboard-focused: dark, compact, readable, and suitable for Home Assistant wall panels or overview pages.
 
 If you enjoy Season Clock Card and want to support future development, you can buy me a coffee:

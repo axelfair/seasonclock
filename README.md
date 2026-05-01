@@ -170,6 +170,12 @@ dist/season-clock-card.js
 
 ## Support
 
+<p align="center">
+  <a href="https://buymeacoffee.com/axelfair">
+    <img src="https://raw.githubusercontent.com/axelfair/seasonclock/main/assets/buymeacoffee.svg" alt="Buy me a coffee" width="420">
+  </a>
+</p>
+
 If you enjoy Season Clock Card and want to support future development, you can buy me a coffee:
 
 [Buy me a coffee](https://buymeacoffee.com/axelfair)
