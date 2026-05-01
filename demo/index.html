@@ -36,6 +36,18 @@
           latitude: 37.323,
           longitude: -122.0322,
           location_name: "Cupertino, California"
+        },
+        states: {
+          "weather.cupertino": {
+            state: "partlycloudy",
+            attributes: {
+              friendly_name: "Cupertino",
+              temperature: 22,
+              temperature_unit: "°C",
+              temperature_high: 24,
+              temperature_low: 14
+            }
+          }
         }
       };
       card.setConfig({
@@ -44,6 +56,7 @@
         latitude: 37.323,
         longitude: -122.0322,
         hemisphere: "northern",
+        weather_entity: "weather.cupertino",
         card_size: 500
       });
     </script>

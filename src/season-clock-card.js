@@ -23,7 +23,8 @@ import {
 const DEFAULT_CONFIG = {
   location_source: "home",
   location_entity: "",
-  location_name: "Cupertino, California",
+  weather_entity: "",
+  location_name: "",
   latitude: null,
   longitude: null,
   hemisphere: "auto",
@@ -36,7 +37,8 @@ const DEFAULT_CONFIG = {
   show_equinox_labels: true,
   show_month_markers: true,
   show_day_ticks: true,
-  show_icons: true
+  show_icons: true,
+  show_weather: true
 };
 
 const CENTER = 250;
@@ -56,6 +58,7 @@ class SeasonClockCard extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    this._userConfig = {};
     this._config = { ...DEFAULT_CONFIG };
   }
 
@@ -70,6 +73,7 @@ class SeasonClockCard extends HTMLElement {
   }
 
   setConfig(config) {
+    this._userConfig = config || {};
     this._config = { ...DEFAULT_CONFIG, ...config };
     this.render();
   }
@@ -214,19 +218,22 @@ class SeasonClockCard extends HTMLElement {
   renderCenterReadout(model) {
     const rows = [];
     if (this.booleanConfig("show_date")) {
-      rows.push(`<text class="weekday" x="250" y="184">${model.weekday}</text>`);
-      rows.push(`<text class="date" x="250" y="205">${model.dateLabel}</text>`);
+      rows.push(`<text class="weekday" x="250" y="168">${model.weekday}</text>`);
+      rows.push(`<text class="date" x="250" y="189">${model.dateLabel}</text>`);
     }
     if (this.booleanConfig("show_day_number")) {
-      rows.push(`<text class="day-text" x="250" y="231">Day ${model.dayOfYear} of ${model.totalDays}</text>`);
+      rows.push(`<text class="day-text" x="250" y="214">Day ${model.dayOfYear} of ${model.totalDays}</text>`);
     }
     if (this.booleanConfig("show_season_name")) {
       const icon = this.booleanConfig("show_icons") ? `${SEASON_ICONS[model.currentSeason.name]} ` : "";
-      rows.push(`<text class="season-text" x="250" y="286" fill="${SEASON_COLORS[model.currentSeason.name]}">${icon}${model.currentSeason.name}</text>`);
+      rows.push(`<text class="season-text" x="250" y="237" fill="${SEASON_COLORS[model.currentSeason.name]}">${icon}${model.currentSeason.name}</text>`);
     }
     if (this.booleanConfig("show_location")) {
-      rows.push(`<text class="hemisphere" x="250" y="314">${model.hemisphere === "north" ? "Northern Hemisphere" : "Southern Hemisphere"}</text>`);
-      rows.push(`<text class="location" x="250" y="334">${this.escape(model.locationName)}</text>`);
+      rows.push(`<text class="hemisphere" x="250" y="282">${model.hemisphere === "north" ? "Northern Hemisphere" : "Southern Hemisphere"}</text>`);
+      rows.push(`<text class="location" x="250" y="302">${this.escape(model.locationName)}</text>`);
+    }
+    if (this.booleanConfig("show_weather") && model.weather) {
+      rows.push(`<text class="weather" x="250" y="324">${this.escape(model.weather)}</text>`);
     }
     return `<g class="center-readout" aria-hidden="true">${rows.join("")}</g>`;
   }
@@ -252,6 +259,7 @@ class SeasonClockCard extends HTMLElement {
       segments,
       currentSeason,
       locationName: location.name,
+      weather: this.getWeather(),
       handPoint: pointAt(CENTER, dayToAngle(dayOfYear, totalDays), LAYOUT.handLength),
       weekday: new Intl.DateTimeFormat(undefined, { weekday: "long" }).format(now),
       dateLabel: new Intl.DateTimeFormat(undefined, { day: "numeric", month: "long", year: "numeric" }).format(now)
@@ -283,7 +291,7 @@ class SeasonClockCard extends HTMLElement {
     return {
       latitude: Number(this._hass?.config?.latitude ?? DEFAULT_CONFIG.latitude ?? 37.323),
       longitude: Number(this._hass?.config?.longitude ?? DEFAULT_CONFIG.longitude ?? -122.0322),
-      name: this._config.location_name || this._hass?.config?.location_name || DEFAULT_CONFIG.location_name
+      name: this.getConfiguredLocationName() || this._hass?.config?.location_name || "Home"
     };
   }
 
@@ -296,7 +304,7 @@ class SeasonClockCard extends HTMLElement {
     return {
       latitude,
       longitude,
-      name: this._config.location_name || DEFAULT_CONFIG.location_name
+      name: this.getConfiguredLocationName() || "Manual location"
     };
   }
 
@@ -316,8 +324,73 @@ class SeasonClockCard extends HTMLElement {
     return {
       latitude,
       longitude,
-      name: this._config.location_name || state.attributes.friendly_name || entityId
+      name: this.getConfiguredLocationName() || state.attributes.friendly_name || entityId
     };
+  }
+
+  getConfiguredLocationName() {
+    const name = this._userConfig?.location_name;
+    return typeof name === "string" && name.trim() ? name.trim() : "";
+  }
+
+  getWeather() {
+    const entityId = this._config.weather_entity;
+    const state = entityId ? this._hass?.states?.[entityId] : null;
+    if (!state) {
+      return "";
+    }
+
+    const attributes = state.attributes || {};
+    const unit = attributes.temperature_unit || this._hass?.config?.unit_system?.temperature || "";
+    const temperature = this.formatTemperature(attributes.temperature, unit);
+    const forecast = Array.isArray(attributes.forecast) ? attributes.forecast[0] : null;
+    const high = this.formatTemperature(
+      attributes.temperature_high ?? attributes.high_temperature ?? attributes.high ?? forecast?.temperature,
+      unit
+    );
+    const low = this.formatTemperature(
+      attributes.temperature_low ?? attributes.low_temperature ?? attributes.low ?? attributes.templow ?? forecast?.templow ?? forecast?.low_temperature,
+      unit
+    );
+    const condition = this.formatCondition(state.state);
+    const parts = [condition, temperature].filter(Boolean);
+    const range = high && low ? `${high}/${low}` : high || low;
+    if (range) {
+      parts.push(`H/L ${range}`);
+    }
+    return parts.join(" · ");
+  }
+
+  formatTemperature(value, unit) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) {
+      return "";
+    }
+    return `${Math.round(number)}${unit}`;
+  }
+
+  formatCondition(value) {
+    if (!value || value === "unknown" || value === "unavailable") {
+      return "";
+    }
+    const labels = {
+      "clear-night": "Clear Night",
+      cloudy: "Cloudy",
+      exceptional: "Exceptional",
+      fog: "Fog",
+      hail: "Hail",
+      lightning: "Lightning",
+      "lightning-rainy": "Thunderstorms",
+      partlycloudy: "Partly Cloudy",
+      pouring: "Pouring",
+      rainy: "Rainy",
+      snowy: "Snowy",
+      "snowy-rainy": "Sleet",
+      sunny: "Sunny",
+      windy: "Windy",
+      "windy-variant": "Windy"
+    };
+    return labels[value] || String(value).replaceAll("_", " ").replaceAll("-", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
   }
 
   shouldShowEvent(event) {

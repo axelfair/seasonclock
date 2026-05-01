@@ -7,13 +7,15 @@ const DISPLAY_OPTIONS = [
   "show_equinox_labels",
   "show_month_markers",
   "show_day_ticks",
-  "show_icons"
+  "show_icons",
+  "show_weather"
 ];
 
 const EDITOR_SCHEMA = [
   { name: "title", selector: { text: {} } },
   { name: "location_source", selector: { select: { options: ["home", "entity", "manual"] } } },
   { name: "location_entity", selector: { entity: {} } },
+  { name: "weather_entity", selector: { entity: { domain: "weather" } } },
   { name: "location_name", selector: { text: {} } },
   { name: "hemisphere", selector: { select: { options: ["auto", "northern", "southern"] } } },
   { name: "card_size", selector: { number: { min: 280, max: 600, mode: "slider" } } },
@@ -130,7 +132,9 @@ export class SeasonClockCardEditor extends HTMLElement {
       show_equinox_labels: "Equinox labels",
       show_month_markers: "Month markers",
       show_day_ticks: "Day ticks",
-      show_icons: "Icons"
+      show_icons: "Icons",
+      show_weather: "Weather",
+      weather_entity: "Weather entity"
     };
     return labels[schema.name] || schema.name?.replaceAll("_", " ") || "";
   }

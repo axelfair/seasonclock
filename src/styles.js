@@ -170,14 +170,16 @@ export const CARD_STYLES = `
     font-weight: 780;
   }
 
-  .hemisphere,
-  .location {
-    fill: var(--season-clock-muted);
-    font-size: 10.5px;
-    font-weight: 600;
-  }
+.hemisphere,
+.location,
+.weather {
+  fill: var(--season-clock-muted);
+  font-size: 10.5px;
+  font-weight: 600;
+}
 
-  .location {
-    fill: var(--season-clock-subtle);
-  }
+.location,
+.weather {
+  fill: var(--season-clock-subtle);
+}
 `;

@@ -87,6 +87,7 @@ Fully customised example:
 type: custom:season-clock-card
 title: Season Clock
 location_source: home
+weather_entity: weather.home
 location_name: Cupertino, California
 latitude: 37.323
 longitude: -122.0322
@@ -101,6 +102,7 @@ show_equinox_labels: true
 show_month_markers: true
 show_day_ticks: true
 show_icons: true
+show_weather: true
 ```
 
 ## Configuration Reference
@@ -111,7 +113,8 @@ show_icons: true
 | `title` | string | empty | Optional card title shown above the clock. |
 | `location_source` | string | `home` | `home`, `entity`, or `manual`. |
 | `location_entity` | string | empty | Entity with `latitude` and `longitude` attributes when `location_source: entity`. |
-| `location_name` | string | `Cupertino, California` | Location label shown when `show_location` is enabled. |
+| `weather_entity` | string | empty | Weather entity used to show current weather, temperature, and high/low when available. |
+| `location_name` | string | empty | Optional label override shown when `show_location` is enabled. |
 | `latitude` | number | empty | Manual latitude when `location_source: manual`. |
 | `longitude` | number | empty | Manual longitude when `location_source: manual`. |
 | `hemisphere` | string | `auto` | `auto`, `northern`, or `southern`. |
@@ -125,6 +128,7 @@ show_icons: true
 | `show_month_markers` | boolean | `true` | Shows longer monthly tick marks. |
 | `show_day_ticks` | boolean | `true` | Shows subtle daily tick marks. |
 | `show_icons` | boolean | `true` | Shows compact seasonal icons. |
+| `show_weather` | boolean | `true` | Shows weather from `weather_entity` when configured. |
 
 ## Location and Hemisphere Detection
 

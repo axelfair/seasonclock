@@ -8,7 +8,8 @@ var e = [
 	"show_equinox_labels",
 	"show_month_markers",
 	"show_day_ticks",
-	"show_icons"
+	"show_icons",
+	"show_weather"
 ], t = [
 	{
 		name: "title",
@@ -25,6 +26,10 @@ var e = [
 	{
 		name: "location_entity",
 		selector: { entity: {} }
+	},
+	{
+		name: "weather_entity",
+		selector: { entity: { domain: "weather" } }
 	},
 	{
 		name: "location_name",
@@ -117,14 +122,16 @@ var e = [
 			show_equinox_labels: "Equinox labels",
 			show_month_markers: "Month markers",
 			show_day_ticks: "Day ticks",
-			show_icons: "Icons"
+			show_icons: "Icons",
+			show_weather: "Weather",
+			weather_entity: "Weather entity"
 		}[e.name] || e.name?.replaceAll("_", " ") || "";
 	}
 };
 customElements.define("season-clock-card-editor", n);
 //#endregion
 //#region src/styles.js
-var r = "\n  :host {\n    display: block;\n    --season-clock-card-size: min(var(--season-clock-size, 500px), 100%);\n    --season-clock-text: #f3f8fc;\n    --season-clock-muted: #a7b6c1;\n    --season-clock-subtle: #6f8190;\n  }\n\n  ha-card {\n    display: block;\n    overflow: hidden;\n    border-radius: var(--ha-card-border-radius, 8px);\n    background: transparent;\n    border: 0;\n    box-shadow: none;\n  }\n\n  .header {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    gap: 12px;\n    padding: 14px 16px 0;\n  }\n\n  .title {\n    color: var(--primary-text-color, var(--season-clock-text));\n    font-size: 15px;\n    font-weight: 700;\n    line-height: 1.2;\n  }\n\n  .wrap {\n    width: var(--season-clock-card-size);\n    max-width: 100%;\n    aspect-ratio: 1;\n    margin: 0 auto;\n  }\n\n  .clock {\n    display: block;\n    width: 100%;\n    height: 100%;\n    color: var(--season-clock-text);\n    font-family: var(--paper-font-body1_-_font-family, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif);\n  }\n\n  .clock-shadow {\n    fill: transparent;\n    stroke: rgba(205, 226, 240, 0.12);\n    stroke-width: 1;\n  }\n\n  .clock-face {\n    fill: transparent;\n    stroke: rgba(211, 228, 239, 0.16);\n    stroke-width: 1;\n  }\n\n  .season-arc {\n    fill: none;\n    stroke-linecap: butt;\n    stroke-width: 22;\n    opacity: 0.94;\n  }\n\n  .ring-guide {\n    fill: none;\n    stroke: rgba(218, 234, 244, 0.14);\n    stroke-width: 1;\n  }\n\n  .tick {\n    stroke: rgba(231, 241, 248, 0.18);\n    stroke-width: 0.7;\n    stroke-linecap: round;\n  }\n\n  .tick.month {\n    stroke: rgba(245, 249, 252, 0.76);\n    stroke-width: 1.7;\n  }\n\n  .season-label,\n  .event-label,\n  .event-date {\n    text-anchor: middle;\n    dominant-baseline: middle;\n    letter-spacing: 0;\n  }\n\n  .season-label {\n    font-size: 9px;\n    font-weight: 760;\n  }\n\n  .season-label .season-icon {\n    font-size: 11px;\n    font-weight: 600;\n  }\n\n  .event-line {\n    stroke: rgba(244, 248, 251, 0.72);\n    stroke-width: 1.3;\n    stroke-linecap: round;\n  }\n\n  .event-dot {\n    fill: #f7fbff;\n    stroke: rgba(4, 12, 18, 0.78);\n    stroke-width: 1;\n  }\n\n  .event-label {\n    fill: rgba(238, 245, 249, 0.9);\n    font-size: 7.2px;\n    font-weight: 760;\n    text-transform: uppercase;\n  }\n\n  .event-date {\n    fill: var(--season-clock-muted);\n    font-size: 7px;\n    font-weight: 650;\n  }\n\n  .hand {\n    stroke: rgba(255, 250, 229, 0.82);\n    stroke-width: 2.2;\n    stroke-linecap: round;\n    filter: url(\"#handGlow\");\n  }\n\n  .pivot-halo {\n    fill: rgba(255, 255, 255, 0.12);\n  }\n\n  .pivot {\n    fill: #f7fbff;\n    stroke: rgba(5, 12, 18, 0.75);\n    stroke-width: 1.2;\n  }\n\n  .center-readout {\n    text-anchor: middle;\n    dominant-baseline: middle;\n  }\n\n  .weekday {\n    fill: var(--season-clock-muted);\n    font-size: 11px;\n    font-weight: 650;\n  }\n\n  .date {\n    fill: var(--season-clock-text);\n    font-size: 15px;\n    font-weight: 760;\n  }\n\n  .day-text {\n    fill: #f1c84e;\n    font-size: 17px;\n    font-weight: 850;\n  }\n\n  .season-text {\n    font-size: 17px;\n    font-weight: 780;\n  }\n\n  .hemisphere,\n  .location {\n    fill: var(--season-clock-muted);\n    font-size: 10.5px;\n    font-weight: 600;\n  }\n\n  .location {\n    fill: var(--season-clock-subtle);\n  }\n", i = {
+var r = "\n  :host {\n    display: block;\n    --season-clock-card-size: min(var(--season-clock-size, 500px), 100%);\n    --season-clock-text: #f3f8fc;\n    --season-clock-muted: #a7b6c1;\n    --season-clock-subtle: #6f8190;\n  }\n\n  ha-card {\n    display: block;\n    overflow: hidden;\n    border-radius: var(--ha-card-border-radius, 8px);\n    background: transparent;\n    border: 0;\n    box-shadow: none;\n  }\n\n  .header {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    gap: 12px;\n    padding: 14px 16px 0;\n  }\n\n  .title {\n    color: var(--primary-text-color, var(--season-clock-text));\n    font-size: 15px;\n    font-weight: 700;\n    line-height: 1.2;\n  }\n\n  .wrap {\n    width: var(--season-clock-card-size);\n    max-width: 100%;\n    aspect-ratio: 1;\n    margin: 0 auto;\n  }\n\n  .clock {\n    display: block;\n    width: 100%;\n    height: 100%;\n    color: var(--season-clock-text);\n    font-family: var(--paper-font-body1_-_font-family, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif);\n  }\n\n  .clock-shadow {\n    fill: transparent;\n    stroke: rgba(205, 226, 240, 0.12);\n    stroke-width: 1;\n  }\n\n  .clock-face {\n    fill: transparent;\n    stroke: rgba(211, 228, 239, 0.16);\n    stroke-width: 1;\n  }\n\n  .season-arc {\n    fill: none;\n    stroke-linecap: butt;\n    stroke-width: 22;\n    opacity: 0.94;\n  }\n\n  .ring-guide {\n    fill: none;\n    stroke: rgba(218, 234, 244, 0.14);\n    stroke-width: 1;\n  }\n\n  .tick {\n    stroke: rgba(231, 241, 248, 0.18);\n    stroke-width: 0.7;\n    stroke-linecap: round;\n  }\n\n  .tick.month {\n    stroke: rgba(245, 249, 252, 0.76);\n    stroke-width: 1.7;\n  }\n\n  .season-label,\n  .event-label,\n  .event-date {\n    text-anchor: middle;\n    dominant-baseline: middle;\n    letter-spacing: 0;\n  }\n\n  .season-label {\n    font-size: 9px;\n    font-weight: 760;\n  }\n\n  .season-label .season-icon {\n    font-size: 11px;\n    font-weight: 600;\n  }\n\n  .event-line {\n    stroke: rgba(244, 248, 251, 0.72);\n    stroke-width: 1.3;\n    stroke-linecap: round;\n  }\n\n  .event-dot {\n    fill: #f7fbff;\n    stroke: rgba(4, 12, 18, 0.78);\n    stroke-width: 1;\n  }\n\n  .event-label {\n    fill: rgba(238, 245, 249, 0.9);\n    font-size: 7.2px;\n    font-weight: 760;\n    text-transform: uppercase;\n  }\n\n  .event-date {\n    fill: var(--season-clock-muted);\n    font-size: 7px;\n    font-weight: 650;\n  }\n\n  .hand {\n    stroke: rgba(255, 250, 229, 0.82);\n    stroke-width: 2.2;\n    stroke-linecap: round;\n    filter: url(\"#handGlow\");\n  }\n\n  .pivot-halo {\n    fill: rgba(255, 255, 255, 0.12);\n  }\n\n  .pivot {\n    fill: #f7fbff;\n    stroke: rgba(5, 12, 18, 0.75);\n    stroke-width: 1.2;\n  }\n\n  .center-readout {\n    text-anchor: middle;\n    dominant-baseline: middle;\n  }\n\n  .weekday {\n    fill: var(--season-clock-muted);\n    font-size: 11px;\n    font-weight: 650;\n  }\n\n  .date {\n    fill: var(--season-clock-text);\n    font-size: 15px;\n    font-weight: 760;\n  }\n\n  .day-text {\n    fill: #f1c84e;\n    font-size: 17px;\n    font-weight: 850;\n  }\n\n  .season-text {\n    font-size: 17px;\n    font-weight: 780;\n  }\n\n.hemisphere,\n.location,\n.weather {\n  fill: var(--season-clock-muted);\n  font-size: 10.5px;\n  font-weight: 600;\n}\n\n.location,\n.weather {\n  fill: var(--season-clock-subtle);\n}\n", i = {
 	Spring: "#7acb8b",
 	Summer: "#e9bf52",
 	Autumn: "#d77a4b",
@@ -312,7 +319,8 @@ function S(e) {
 var C = {
 	location_source: "home",
 	location_entity: "",
-	location_name: "Cupertino, California",
+	weather_entity: "",
+	location_name: "",
 	latitude: null,
 	longitude: null,
 	hemisphere: "auto",
@@ -325,7 +333,8 @@ var C = {
 	show_equinox_labels: !0,
 	show_month_markers: !0,
 	show_day_ticks: !0,
-	show_icons: !0
+	show_icons: !0,
+	show_weather: !0
 }, w = 250, T = {
 	arcRadius: 181,
 	tickOuter: 194,
@@ -338,7 +347,7 @@ var C = {
 	handLength: 166
 }, E = class extends HTMLElement {
 	constructor() {
-		super(), this.attachShadow({ mode: "open" }), this._config = { ...C };
+		super(), this.attachShadow({ mode: "open" }), this._userConfig = {}, this._config = { ...C };
 	}
 	static getConfigElement() {
 		return document.createElement("season-clock-card-editor");
@@ -347,7 +356,7 @@ var C = {
 		return { type: "custom:season-clock-card" };
 	}
 	setConfig(e) {
-		this._config = {
+		this._userConfig = e || {}, this._config = {
 			...C,
 			...e
 		}, this.render();
@@ -451,11 +460,11 @@ var C = {
 	}
 	renderCenterReadout(e) {
 		let t = [];
-		if (this.booleanConfig("show_date") && (t.push(`<text class="weekday" x="250" y="184">${e.weekday}</text>`), t.push(`<text class="date" x="250" y="205">${e.dateLabel}</text>`)), this.booleanConfig("show_day_number") && t.push(`<text class="day-text" x="250" y="231">Day ${e.dayOfYear} of ${e.totalDays}</text>`), this.booleanConfig("show_season_name")) {
+		if (this.booleanConfig("show_date") && (t.push(`<text class="weekday" x="250" y="168">${e.weekday}</text>`), t.push(`<text class="date" x="250" y="189">${e.dateLabel}</text>`)), this.booleanConfig("show_day_number") && t.push(`<text class="day-text" x="250" y="214">Day ${e.dayOfYear} of ${e.totalDays}</text>`), this.booleanConfig("show_season_name")) {
 			let n = this.booleanConfig("show_icons") ? `${a[e.currentSeason.name]} ` : "";
-			t.push(`<text class="season-text" x="250" y="286" fill="${i[e.currentSeason.name]}">${n}${e.currentSeason.name}</text>`);
+			t.push(`<text class="season-text" x="250" y="237" fill="${i[e.currentSeason.name]}">${n}${e.currentSeason.name}</text>`);
 		}
-		return this.booleanConfig("show_location") && (t.push(`<text class="hemisphere" x="250" y="314">${e.hemisphere === "north" ? "Northern Hemisphere" : "Southern Hemisphere"}</text>`), t.push(`<text class="location" x="250" y="334">${this.escape(e.locationName)}</text>`)), `<g class="center-readout" aria-hidden="true">${t.join("")}</g>`;
+		return this.booleanConfig("show_location") && (t.push(`<text class="hemisphere" x="250" y="282">${e.hemisphere === "north" ? "Northern Hemisphere" : "Southern Hemisphere"}</text>`), t.push(`<text class="location" x="250" y="302">${this.escape(e.locationName)}</text>`)), this.booleanConfig("show_weather") && e.weather && t.push(`<text class="weather" x="250" y="324">${this.escape(e.weather)}</text>`), `<g class="center-readout" aria-hidden="true">${t.join("")}</g>`;
 	}
 	getClockModel() {
 		let e = /* @__PURE__ */ new Date(), t = e.getFullYear(), n = d(t) ? 366 : 365, r = f(e), i = this.getLocation(), a = _(this._config.hemisphere, i.latitude), o = a === "north" ? s : c, p = m(a === "north" ? l : u, t, n);
@@ -468,6 +477,7 @@ var C = {
 			segments: p,
 			currentSeason: h(p, r, n),
 			locationName: i.name,
+			weather: this.getWeather(),
 			handPoint: y(w, v(r, n), T.handLength),
 			weekday: new Intl.DateTimeFormat(void 0, { weekday: "long" }).format(e),
 			dateLabel: new Intl.DateTimeFormat(void 0, {
@@ -496,7 +506,7 @@ var C = {
 		return {
 			latitude: Number(this._hass?.config?.latitude ?? C.latitude ?? 37.323),
 			longitude: Number(this._hass?.config?.longitude ?? C.longitude ?? -122.0322),
-			name: this._config.location_name || this._hass?.config?.location_name || C.location_name
+			name: this.getConfiguredLocationName() || this._hass?.config?.location_name || "Home"
 		};
 	}
 	getManualLocation() {
@@ -504,7 +514,7 @@ var C = {
 		return !Number.isFinite(e) || !Number.isFinite(t) ? null : {
 			latitude: e,
 			longitude: t,
-			name: this._config.location_name || C.location_name
+			name: this.getConfiguredLocationName() || "Manual location"
 		};
 	}
 	getEntityLocation() {
@@ -514,8 +524,41 @@ var C = {
 		return !Number.isFinite(n) || !Number.isFinite(r) ? null : {
 			latitude: n,
 			longitude: r,
-			name: this._config.location_name || t.attributes.friendly_name || e
+			name: this.getConfiguredLocationName() || t.attributes.friendly_name || e
 		};
+	}
+	getConfiguredLocationName() {
+		let e = this._userConfig?.location_name;
+		return typeof e == "string" && e.trim() ? e.trim() : "";
+	}
+	getWeather() {
+		let e = this._config.weather_entity, t = e ? this._hass?.states?.[e] : null;
+		if (!t) return "";
+		let n = t.attributes || {}, r = n.temperature_unit || this._hass?.config?.unit_system?.temperature || "", i = this.formatTemperature(n.temperature, r), a = Array.isArray(n.forecast) ? n.forecast[0] : null, o = this.formatTemperature(n.temperature_high ?? n.high_temperature ?? n.high ?? a?.temperature, r), s = this.formatTemperature(n.temperature_low ?? n.low_temperature ?? n.low ?? n.templow ?? a?.templow ?? a?.low_temperature, r), c = [this.formatCondition(t.state), i].filter(Boolean), l = o && s ? `${o}/${s}` : o || s;
+		return l && c.push(`H/L ${l}`), c.join(" · ");
+	}
+	formatTemperature(e, t) {
+		let n = Number(e);
+		return Number.isFinite(n) ? `${Math.round(n)}${t}` : "";
+	}
+	formatCondition(e) {
+		return !e || e === "unknown" || e === "unavailable" ? "" : {
+			"clear-night": "Clear Night",
+			cloudy: "Cloudy",
+			exceptional: "Exceptional",
+			fog: "Fog",
+			hail: "Hail",
+			lightning: "Lightning",
+			"lightning-rainy": "Thunderstorms",
+			partlycloudy: "Partly Cloudy",
+			pouring: "Pouring",
+			rainy: "Rainy",
+			snowy: "Snowy",
+			"snowy-rainy": "Sleet",
+			sunny: "Sunny",
+			windy: "Windy",
+			"windy-variant": "Windy"
+		}[e] || String(e).replaceAll("_", " ").replaceAll("-", " ").replace(/\b\w/g, (e) => e.toUpperCase());
 	}
 	shouldShowEvent(e) {
 		let t = e.label.toLowerCase().includes("solstice"), n = e.label.toLowerCase().includes("equinox");
