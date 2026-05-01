@@ -688,11 +688,15 @@ class SeasonClockCard extends HTMLElement {
   }
 }
 
-customElements.define("season-clock-card", SeasonClockCard);
+if (!customElements.get("season-clock-card")) {
+  customElements.define("season-clock-card", SeasonClockCard);
+}
 
-window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "season-clock-card",
-  name: "Season Clock Card",
-  description: "A location-aware seasonal year clock for Home Assistant dashboards."
-});
+window.customCards = Array.isArray(window.customCards) ? window.customCards : [];
+if (!window.customCards.some((card) => card?.type === "season-clock-card")) {
+  window.customCards.push({
+    type: "season-clock-card",
+    name: "Season Clock Card",
+    description: "A location-aware seasonal year clock for Home Assistant dashboards."
+  });
+}

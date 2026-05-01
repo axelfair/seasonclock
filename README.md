@@ -4,7 +4,7 @@
 
 # Season Clock Card
 
-Season Clock Card is a Home Assistant Lovelace card that shows a clean, location-aware seasonal year clock. It is designed to feel like a polished dashboard widget rather than an infographic.
+Season Clock Card is a Home Assistant Lovelace card that shows a premium, location-aware seasonal year clock. It is designed to feel like a physical smart wall clock for Home Assistant dashboards.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/axelfair/seasonclock/main/assets/preview.png" alt="Season Clock Card preview" width="500">
@@ -13,12 +13,14 @@ Season Clock Card is a Home Assistant Lovelace card that shows a clean, location
 ## Features
 
 - Circular seasonal year clock with spring, summer, autumn, and winter segments.
+- Premium glass-and-metal watch-face styling with recessed complications.
 - Fully configurable clock-face elements via YAML.
 - Location-aware Northern/Southern Hemisphere support.
 - Solstice and equinox markers.
 - Daily ticks and monthly markers.
 - Current moon phase icon calculated from the date.
-- Classic watch-style centre complications for date, season progress, next milestone, location, and weather.
+- Classic watch-style centre complications for date, season progress, next milestone, and weather.
+- Weather complication showing condition icon and current temperature from a weather entity.
 - Configurable card size and display options.
 - HACS custom dashboard repository ready.
 
@@ -45,10 +47,16 @@ https://github.com/axelfair/seasonclock
 
 HACS custom repository installation should point to the GitHub repo URL above.
 
-HACS installs the bundled card from the same filename used by earlier working releases:
+HACS installs the bundled card from the repository-name-matched dashboard plugin file:
 
 ```text
-season-clock-card.js
+seasonclock.js
+```
+
+After installing or upgrading through HACS, refresh Home Assistant frontend resources or clear the browser cache if the old card bundle is still being served. The expected HACS resource path is:
+
+```text
+/hacsfiles/seasonclock/seasonclock.js
 ```
 
 ### Manual Installation
@@ -56,13 +64,13 @@ season-clock-card.js
 Copy:
 
 ```text
-dist/season-clock-card.js
+dist/seasonclock.js
 ```
 
 to:
 
 ```text
-/config/www/community/season-clock-card/season-clock-card.js
+/config/www/community/season-clock-card/seasonclock.js
 ```
 
 Then add the Lovelace resource:
@@ -70,7 +78,7 @@ Then add the Lovelace resource:
 URL:
 
 ```text
-/local/community/season-clock-card/season-clock-card.js
+/local/community/season-clock-card/seasonclock.js
 ```
 
 Type:
@@ -109,7 +117,6 @@ show_equinox_labels: true
 show_month_names: true
 show_month_markers: true
 show_day_ticks: true
-show_icons: true
 show_moon_phase: true
 show_weather: true
 ```
@@ -122,7 +129,7 @@ show_weather: true
 | `title` | string | empty | Optional card title shown above the clock. |
 | `location_source` | string | `home` | `home`, `entity`, or `manual`. |
 | `location_entity` | string | empty | Entity with `latitude` and `longitude` attributes when `location_source: entity`. |
-| `weather_entity` | string | empty | Weather entity used to show current weather, temperature, and high/low when available. |
+| `weather_entity` | string | empty | Weather entity used to show a condition icon and current temperature when available. |
 | `location_name` | string | empty | Optional label override shown when `show_location` is enabled. |
 | `latitude` | number | empty | Manual latitude when `location_source: manual`. |
 | `longitude` | number | empty | Manual longitude when `location_source: manual`. |
@@ -130,16 +137,15 @@ show_weather: true
 | `card_size` | number | `500` | Clock size in pixels. |
 | `show_date` | boolean | `true` | Shows weekday and date. |
 | `show_day_number` | boolean | `true` | Shows day-of-year. |
-| `show_season_name` | boolean | `true` | Shows season labels and centre season. |
+| `show_season_name` | boolean | `true` | Shows the season progress complication. |
 | `show_location` | boolean | `true` | Shows hemisphere and location. |
 | `show_solstice_labels` | boolean | `true` | Shows solstice markers and labels. |
 | `show_equinox_labels` | boolean | `true` | Shows equinox markers and labels. |
 | `show_month_names` | boolean | `true` | Shows curved month names embedded into the season ring. |
 | `show_month_markers` | boolean | `true` | Shows longer monthly tick marks. |
 | `show_day_ticks` | boolean | `true` | Shows subtle daily tick marks. |
-| `show_icons` | boolean | `true` | Shows compact seasonal icons. |
 | `show_moon_phase` | boolean | `true` | Shows a calculated moon phase icon at the tip of the clock hand. |
-| `show_weather` | boolean | `true` | Shows weather from `weather_entity` when configured. |
+| `show_weather` | boolean | `true` | Shows weather icon and current temperature from `weather_entity` when configured. |
 
 ## Location and Hemisphere Detection
 
@@ -174,7 +180,7 @@ npm run build
 Confirm the built card exists at:
 
 ```text
-dist/season-clock-card.js
+dist/seasonclock.js
 ```
 
 ## Support

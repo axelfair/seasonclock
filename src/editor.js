@@ -8,7 +8,6 @@ const DISPLAY_OPTIONS = [
   "show_month_names",
   "show_month_markers",
   "show_day_ticks",
-  "show_icons",
   "show_moon_phase",
   "show_weather"
 ];
@@ -31,7 +30,6 @@ const EDITOR_DEFAULTS = {
   show_month_names: true,
   show_month_markers: true,
   show_day_ticks: true,
-  show_icons: true,
   show_moon_phase: true,
   show_weather: true
 };
@@ -171,7 +169,6 @@ export class SeasonClockCardEditor extends HTMLElement {
       show_month_names: "Month names",
       show_month_markers: "Month markers",
       show_day_ticks: "Day ticks",
-      show_icons: "Icons",
       show_moon_phase: "Moon phase",
       show_weather: "Weather",
       weather_entity: "Weather entity"
@@ -180,4 +177,6 @@ export class SeasonClockCardEditor extends HTMLElement {
   }
 }
 
-customElements.define("season-clock-card-editor", SeasonClockCardEditor);
+if (!customElements.get("season-clock-card-editor")) {
+  customElements.define("season-clock-card-editor", SeasonClockCardEditor);
+}
