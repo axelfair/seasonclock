@@ -12,6 +12,28 @@ const DISPLAY_OPTIONS = [
   "show_weather"
 ];
 
+const EDITOR_DEFAULTS = {
+  location_source: "home",
+  location_entity: "",
+  weather_entity: "",
+  location_name: "",
+  latitude: null,
+  longitude: null,
+  hemisphere: "auto",
+  card_size: 500,
+  show_date: true,
+  show_day_number: true,
+  show_season_name: true,
+  show_location: true,
+  show_solstice_labels: true,
+  show_equinox_labels: true,
+  show_month_names: true,
+  show_month_markers: true,
+  show_day_ticks: true,
+  show_icons: true,
+  show_weather: true
+};
+
 const EDITOR_SCHEMA = [
   { name: "title", selector: { text: {} } },
   { name: "location_source", selector: { select: { options: ["home", "entity", "manual"] } } },
@@ -28,6 +50,12 @@ const EDITOR_SCHEMA = [
 ];
 
 export class SeasonClockCardEditor extends HTMLElement {
+  constructor() {
+    super();
+    this._config = {};
+    this._updatingForm = false;
+  }
+
   setConfig(config) {
     this._config = config || {};
     this.updateForm();
@@ -74,7 +102,10 @@ export class SeasonClockCardEditor extends HTMLElement {
     form.schema = EDITOR_SCHEMA;
     form.computeLabel = (schema) => this.getLabel(schema);
     form.addEventListener("value-changed", (event) => {
-      this.updateConfig(event.detail.value);
+      if (this._updatingForm) {
+        return;
+      }
+      this.updateConfig(event.detail.value || {});
     });
 
     this.querySelectorAll("[data-display-action]").forEach((button) => {
@@ -93,10 +124,10 @@ export class SeasonClockCardEditor extends HTMLElement {
   }
 
   updateConfig(config) {
-    this._config = config;
+    this._config = { ...(this._config || {}), ...(config || {}) };
     this.updateForm();
     this.dispatchEvent(new CustomEvent("config-changed", {
-      detail: { config },
+      detail: { config: this._config },
       bubbles: true,
       composed: true
     }));
@@ -115,8 +146,12 @@ export class SeasonClockCardEditor extends HTMLElement {
     if (!form) {
       return;
     }
+    this._updatingForm = true;
     form.hass = this._hass;
-    form.data = this._config || {};
+    form.data = { ...EDITOR_DEFAULTS, ...(this._config || {}) };
+    queueMicrotask(() => {
+      this._updatingForm = false;
+    });
   }
 
   getLabel(schema) {

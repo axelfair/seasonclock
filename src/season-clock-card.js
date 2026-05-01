@@ -68,6 +68,8 @@ const LAYOUT = {
   eventOuter: 202,
   eventLabel: 224,
   seasonLabel: 136,
+  progressRadius: 155,
+  todayRadius: 207,
   handLength: 166
 };
 
@@ -145,11 +147,34 @@ class SeasonClockCard extends HTMLElement {
         ${this.renderTicks(model)}
         ${this.renderEventMarkers(model)}
         ${this.renderSeasonLabels(model)}
+        ${this.renderProgressLayer(model)}
         <line class="hand" x1="250" y1="250" x2="${model.handPoint.x}" y2="${model.handPoint.y}"></line>
         <circle class="pivot-halo" cx="250" cy="250" r="11"></circle>
         <circle class="pivot" cx="250" cy="250" r="5.5"></circle>
         ${this.renderCenterReadout(model)}
       </svg>
+    `;
+  }
+
+  renderProgressLayer(model) {
+    const progressEnd = model.currentSeason.start + ((model.currentSeason.end - model.currentSeason.start) * (model.seasonProgress / 100));
+    const progressPath = describeArc(
+      CENTER,
+      CENTER,
+      LAYOUT.progressRadius,
+      dayToAngle(model.currentSeason.start, model.totalDays),
+      dayToAngle(progressEnd, model.totalDays)
+    );
+    const today = pointAt(CENTER, dayToAngle(model.dayOfYear, model.totalDays), LAYOUT.todayRadius);
+    const next = pointAt(CENTER, dayToAngle(model.nextEvent.dayOfYear, model.totalDays), LAYOUT.todayRadius);
+
+    return `
+      <g class="progress-layer">
+        <circle class="progress-track" cx="250" cy="250" r="${LAYOUT.progressRadius}"></circle>
+        <path class="season-progress" d="${progressPath}" stroke="${SEASON_COLORS[model.currentSeason.name]}"></path>
+        <circle class="next-event-dot" cx="${next.x}" cy="${next.y}" r="3.2"></circle>
+        <circle class="today-dot" cx="${today.x}" cy="${today.y}" r="4.2"></circle>
+      </g>
     `;
   }
 
@@ -256,24 +281,44 @@ class SeasonClockCard extends HTMLElement {
   renderCenterReadout(model) {
     const rows = [];
     if (this.booleanConfig("show_date")) {
-      rows.push(`<text class="weekday" x="250" y="168">${model.weekday}</text>`);
-      rows.push(`<text class="date" x="250" y="189">${model.dateLabel}</text>`);
+      rows.push({ className: "weekday", text: model.weekday });
+      rows.push({ className: "date", text: model.dateLabel });
     }
     if (this.booleanConfig("show_day_number")) {
-      rows.push(`<text class="day-text" x="250" y="214">Day ${model.dayOfYear} of ${model.totalDays}</text>`);
+      rows.push({ className: "day-text", text: `Day ${model.dayOfYear} of ${model.totalDays}` });
     }
     if (this.booleanConfig("show_season_name")) {
       const icon = this.booleanConfig("show_icons") ? `${SEASON_ICONS[model.currentSeason.name]} ` : "";
-      rows.push(`<text class="season-text" x="250" y="237" fill="${SEASON_COLORS[model.currentSeason.name]}">${icon}${model.currentSeason.name}</text>`);
+      rows.push({
+        className: "season-text",
+        fill: SEASON_COLORS[model.currentSeason.name],
+        text: `${icon}${model.currentSeason.name}`
+      });
+      rows.push({
+        className: "season-progress-text",
+        text: `${model.seasonProgress}% through ${model.currentSeason.name}`
+      });
+      rows.push({
+        className: "next-event",
+        text: `${model.nextEvent.shortLabel} in ${model.nextEvent.daysUntil} ${model.nextEvent.daysUntil === 1 ? "day" : "days"}`
+      });
     }
     if (this.booleanConfig("show_location")) {
-      rows.push(`<text class="hemisphere" x="250" y="282">${model.hemisphere === "north" ? "Northern Hemisphere" : "Southern Hemisphere"}</text>`);
-      rows.push(`<text class="location" x="250" y="302">${this.escape(model.locationName)}</text>`);
+      rows.push({ className: "hemisphere", text: model.hemisphere === "north" ? "Northern Hemisphere" : "Southern Hemisphere" });
+      rows.push({ className: "location", text: model.locationName });
     }
     if (this.booleanConfig("show_weather") && model.weather) {
-      rows.push(`<text class="weather" x="250" y="324">${this.escape(model.weather)}</text>`);
+      rows.push({ className: "weather", text: model.weather });
     }
-    return `<g class="center-readout" aria-hidden="true">${rows.join("")}</g>`;
+
+    const lineHeight = rows.length > 7 ? 18.5 : 21;
+    const startY = 250 - ((rows.length - 1) * lineHeight / 2);
+    const text = rows.map((row, index) => {
+      const fill = row.fill ? ` fill="${row.fill}"` : "";
+      return `<text class="${row.className}" x="250" y="${startY + (index * lineHeight)}"${fill}>${this.escape(row.text)}</text>`;
+    }).join("");
+
+    return `<g class="center-readout" aria-hidden="true">${text}</g>`;
   }
 
   getClockModel() {
@@ -287,6 +332,8 @@ class SeasonClockCard extends HTMLElement {
     const starts = hemisphere === "north" ? NORTHERN_SEASON_STARTS : SOUTHERN_SEASON_STARTS;
     const segments = buildSeasonSegments(starts, year, totalDays);
     const currentSeason = getCurrentSeason(segments, dayOfYear, totalDays);
+    const seasonProgress = this.getSeasonProgress(currentSeason, dayOfYear, totalDays);
+    const nextEvent = this.getNextEvent(events, year, dayOfYear, totalDays);
 
     return {
       year,
@@ -296,12 +343,35 @@ class SeasonClockCard extends HTMLElement {
       events,
       segments,
       currentSeason,
+      seasonProgress,
+      nextEvent,
       locationName: location.name,
       weather: this.getWeather(),
       handPoint: pointAt(CENTER, dayToAngle(dayOfYear, totalDays), LAYOUT.handLength),
       weekday: new Intl.DateTimeFormat(undefined, { weekday: "long" }).format(now),
       dateLabel: new Intl.DateTimeFormat(undefined, { day: "numeric", month: "long", year: "numeric" }).format(now)
     };
+  }
+
+  getSeasonProgress(segment, dayOfYear, totalDays) {
+    const wrappedDay = dayOfYear < segment.start ? dayOfYear + totalDays : dayOfYear;
+    const elapsed = Math.max(0, wrappedDay - segment.start + 1);
+    return Math.min(100, Math.max(1, Math.round((elapsed / (segment.end - segment.start)) * 100)));
+  }
+
+  getNextEvent(events, year, dayOfYear, totalDays) {
+    const candidates = events.map((event) => {
+      const eventDay = getDayOfYear(new Date(year, event.month, event.day));
+      const daysUntil = eventDay >= dayOfYear ? eventDay - dayOfYear : eventDay + totalDays - dayOfYear;
+      return {
+        ...event,
+        dayOfYear: eventDay,
+        daysUntil,
+        shortLabel: event.label.replace("Spring ", "").replace("Summer ", "").replace("Autumn ", "").replace("Winter ", "")
+      };
+    });
+    candidates.sort((a, b) => a.daysUntil - b.daysUntil);
+    return candidates[0];
   }
 
   getLatitude() {
@@ -353,8 +423,9 @@ class SeasonClockCard extends HTMLElement {
       return null;
     }
 
-    const latitude = Number(state.attributes.latitude ?? state.attributes.lat);
-    const longitude = Number(state.attributes.longitude ?? state.attributes.lon ?? state.attributes.lng);
+    const attributes = state.attributes || {};
+    const latitude = Number(attributes.latitude ?? attributes.lat);
+    const longitude = Number(attributes.longitude ?? attributes.lon ?? attributes.lng);
     if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
       return null;
     }
@@ -362,7 +433,7 @@ class SeasonClockCard extends HTMLElement {
     return {
       latitude,
       longitude,
-      name: this.getConfiguredLocationName() || state.attributes.friendly_name || entityId
+      name: this.getConfiguredLocationName() || attributes.friendly_name || entityId
     };
   }
 

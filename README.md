@@ -44,18 +44,24 @@ https://github.com/axelfair/seasonclock
 
 HACS custom repository installation should point to the GitHub repo URL above.
 
+HACS installs the bundled card from the same filename used by earlier working releases:
+
+```text
+season-clock-card.js
+```
+
 ### Manual Installation
 
 Copy:
 
 ```text
-dist/seasonclock.js
+dist/season-clock-card.js
 ```
 
 to:
 
 ```text
-/config/www/community/season-clock-card/seasonclock.js
+/config/www/community/season-clock-card/season-clock-card.js
 ```
 
 Then add the Lovelace resource:
@@ -63,7 +69,7 @@ Then add the Lovelace resource:
 URL:
 
 ```text
-/local/community/season-clock-card/seasonclock.js
+/local/community/season-clock-card/season-clock-card.js
 ```
 
 Type:
@@ -165,7 +171,7 @@ npm run build
 Confirm the built card exists at:
 
 ```text
-dist/seasonclock.js
+dist/season-clock-card.js
 ```
 
 ## Support

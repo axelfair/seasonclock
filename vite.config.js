@@ -5,7 +5,7 @@ export default defineConfig({
     lib: {
       entry: "src/season-clock-card.js",
       formats: ["es"],
-      fileName: () => "seasonclock.js"
+      fileName: () => "season-clock-card.js"
     },
     outDir: "dist",
     emptyOutDir: true,

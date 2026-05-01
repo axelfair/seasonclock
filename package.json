@@ -1,6 +1,6 @@
 {
   "name": "season-clock-card",
-  "version": "0.1.0",
+  "version": "0.1.8",
   "description": "A Home Assistant Lovelace card showing a beautiful location-aware seasonal year clock.",
   "type": "module",
   "private": false,

@@ -88,13 +88,16 @@ export const CARD_STYLES = `
   }
 
   .month-name {
-    fill: rgba(255, 255, 255, 0.46);
-    font-size: 7.2px;
+    fill: rgba(255, 255, 255, 0.68);
+    font-size: 7.7px;
     font-weight: 850;
-    letter-spacing: 1.15px;
+    letter-spacing: 1px;
     text-anchor: middle;
     dominant-baseline: middle;
     pointer-events: none;
+    paint-order: stroke;
+    stroke: rgba(4, 12, 18, 0.52);
+    stroke-width: 1.8px;
   }
 
   .season-label,
@@ -138,6 +141,31 @@ export const CARD_STYLES = `
     fill: var(--season-clock-muted);
     font-size: 7px;
     font-weight: 650;
+  }
+
+  .progress-track {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 5;
+  }
+
+  .season-progress {
+    fill: none;
+    stroke-linecap: round;
+    stroke-width: 5;
+    opacity: 0.78;
+  }
+
+  .today-dot {
+    fill: #fff6cf;
+    stroke: rgba(5, 12, 18, 0.82);
+    stroke-width: 1.3;
+  }
+
+  .next-event-dot {
+    fill: rgba(255, 255, 255, 0.72);
+    stroke: rgba(5, 12, 18, 0.72);
+    stroke-width: 1;
   }
 
   .hand {
@@ -187,6 +215,8 @@ export const CARD_STYLES = `
 
   .hemisphere,
   .location,
+  .season-progress-text,
+  .next-event,
   .weather {
     fill: var(--season-clock-muted);
     font-size: 10.5px;
@@ -194,6 +224,7 @@ export const CARD_STYLES = `
   }
 
   .location,
+  .next-event,
   .weather {
     fill: var(--season-clock-subtle);
   }
