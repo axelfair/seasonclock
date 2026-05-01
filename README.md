@@ -49,13 +49,13 @@ HACS custom repository installation should point to the GitHub repo URL above.
 Copy:
 
 ```text
-dist/season-clock-card.js
+dist/seasonclock.js
 ```
 
 to:
 
 ```text
-/config/www/community/season-clock-card/season-clock-card.js
+/config/www/community/season-clock-card/seasonclock.js
 ```
 
 Then add the Lovelace resource:
@@ -63,7 +63,7 @@ Then add the Lovelace resource:
 URL:
 
 ```text
-/local/community/season-clock-card/season-clock-card.js
+/local/community/season-clock-card/seasonclock.js
 ```
 
 Type:
@@ -165,7 +165,7 @@ npm run build
 Confirm the built card exists at:
 
 ```text
-dist/season-clock-card.js
+dist/seasonclock.js
 ```
 
 ## Support
