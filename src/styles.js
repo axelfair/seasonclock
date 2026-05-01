@@ -82,6 +82,21 @@ export const CARD_STYLES = `
     stroke-width: 1.7;
   }
 
+  .month-names path {
+    fill: none;
+    stroke: none;
+  }
+
+  .month-name {
+    fill: rgba(255, 255, 255, 0.46);
+    font-size: 7.2px;
+    font-weight: 850;
+    letter-spacing: 1.15px;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+  }
+
   .season-label,
   .event-label,
   .event-date {
@@ -170,16 +185,16 @@ export const CARD_STYLES = `
     font-weight: 780;
   }
 
-.hemisphere,
-.location,
-.weather {
-  fill: var(--season-clock-muted);
-  font-size: 10.5px;
-  font-weight: 600;
-}
+  .hemisphere,
+  .location,
+  .weather {
+    fill: var(--season-clock-muted);
+    font-size: 10.5px;
+    font-weight: 600;
+  }
 
-.location,
-.weather {
-  fill: var(--season-clock-subtle);
-}
+  .location,
+  .weather {
+    fill: var(--season-clock-subtle);
+  }
 `;

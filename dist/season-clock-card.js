@@ -6,6 +6,7 @@ var e = [
 	"show_location",
 	"show_solstice_labels",
 	"show_equinox_labels",
+	"show_month_names",
 	"show_month_markers",
 	"show_day_ticks",
 	"show_icons",
@@ -120,6 +121,7 @@ var e = [
 			show_location: "Location",
 			show_solstice_labels: "Solstice labels",
 			show_equinox_labels: "Equinox labels",
+			show_month_names: "Month names",
 			show_month_markers: "Month markers",
 			show_day_ticks: "Day ticks",
 			show_icons: "Icons",
@@ -131,7 +133,7 @@ var e = [
 customElements.define("season-clock-card-editor", n);
 //#endregion
 //#region src/styles.js
-var r = "\n  :host {\n    display: block;\n    --season-clock-card-size: min(var(--season-clock-size, 500px), 100%);\n    --season-clock-text: #f3f8fc;\n    --season-clock-muted: #a7b6c1;\n    --season-clock-subtle: #6f8190;\n  }\n\n  ha-card {\n    display: block;\n    overflow: hidden;\n    border-radius: var(--ha-card-border-radius, 8px);\n    background: transparent;\n    border: 0;\n    box-shadow: none;\n  }\n\n  .header {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    gap: 12px;\n    padding: 14px 16px 0;\n  }\n\n  .title {\n    color: var(--primary-text-color, var(--season-clock-text));\n    font-size: 15px;\n    font-weight: 700;\n    line-height: 1.2;\n  }\n\n  .wrap {\n    width: var(--season-clock-card-size);\n    max-width: 100%;\n    aspect-ratio: 1;\n    margin: 0 auto;\n  }\n\n  .clock {\n    display: block;\n    width: 100%;\n    height: 100%;\n    color: var(--season-clock-text);\n    font-family: var(--paper-font-body1_-_font-family, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif);\n  }\n\n  .clock-shadow {\n    fill: transparent;\n    stroke: rgba(205, 226, 240, 0.12);\n    stroke-width: 1;\n  }\n\n  .clock-face {\n    fill: transparent;\n    stroke: rgba(211, 228, 239, 0.16);\n    stroke-width: 1;\n  }\n\n  .season-arc {\n    fill: none;\n    stroke-linecap: butt;\n    stroke-width: 22;\n    opacity: 0.94;\n  }\n\n  .ring-guide {\n    fill: none;\n    stroke: rgba(218, 234, 244, 0.14);\n    stroke-width: 1;\n  }\n\n  .tick {\n    stroke: rgba(231, 241, 248, 0.18);\n    stroke-width: 0.7;\n    stroke-linecap: round;\n  }\n\n  .tick.month {\n    stroke: rgba(245, 249, 252, 0.76);\n    stroke-width: 1.7;\n  }\n\n  .season-label,\n  .event-label,\n  .event-date {\n    text-anchor: middle;\n    dominant-baseline: middle;\n    letter-spacing: 0;\n  }\n\n  .season-label {\n    font-size: 9px;\n    font-weight: 760;\n  }\n\n  .season-label .season-icon {\n    font-size: 11px;\n    font-weight: 600;\n  }\n\n  .event-line {\n    stroke: rgba(244, 248, 251, 0.72);\n    stroke-width: 1.3;\n    stroke-linecap: round;\n  }\n\n  .event-dot {\n    fill: #f7fbff;\n    stroke: rgba(4, 12, 18, 0.78);\n    stroke-width: 1;\n  }\n\n  .event-label {\n    fill: rgba(238, 245, 249, 0.9);\n    font-size: 7.2px;\n    font-weight: 760;\n    text-transform: uppercase;\n  }\n\n  .event-date {\n    fill: var(--season-clock-muted);\n    font-size: 7px;\n    font-weight: 650;\n  }\n\n  .hand {\n    stroke: rgba(255, 250, 229, 0.82);\n    stroke-width: 2.2;\n    stroke-linecap: round;\n    filter: url(\"#handGlow\");\n  }\n\n  .pivot-halo {\n    fill: rgba(255, 255, 255, 0.12);\n  }\n\n  .pivot {\n    fill: #f7fbff;\n    stroke: rgba(5, 12, 18, 0.75);\n    stroke-width: 1.2;\n  }\n\n  .center-readout {\n    text-anchor: middle;\n    dominant-baseline: middle;\n  }\n\n  .weekday {\n    fill: var(--season-clock-muted);\n    font-size: 11px;\n    font-weight: 650;\n  }\n\n  .date {\n    fill: var(--season-clock-text);\n    font-size: 15px;\n    font-weight: 760;\n  }\n\n  .day-text {\n    fill: #f1c84e;\n    font-size: 17px;\n    font-weight: 850;\n  }\n\n  .season-text {\n    font-size: 17px;\n    font-weight: 780;\n  }\n\n.hemisphere,\n.location,\n.weather {\n  fill: var(--season-clock-muted);\n  font-size: 10.5px;\n  font-weight: 600;\n}\n\n.location,\n.weather {\n  fill: var(--season-clock-subtle);\n}\n", i = {
+var r = "\n  :host {\n    display: block;\n    --season-clock-card-size: min(var(--season-clock-size, 500px), 100%);\n    --season-clock-text: #f3f8fc;\n    --season-clock-muted: #a7b6c1;\n    --season-clock-subtle: #6f8190;\n  }\n\n  ha-card {\n    display: block;\n    overflow: hidden;\n    border-radius: var(--ha-card-border-radius, 8px);\n    background: transparent;\n    border: 0;\n    box-shadow: none;\n  }\n\n  .header {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    gap: 12px;\n    padding: 14px 16px 0;\n  }\n\n  .title {\n    color: var(--primary-text-color, var(--season-clock-text));\n    font-size: 15px;\n    font-weight: 700;\n    line-height: 1.2;\n  }\n\n  .wrap {\n    width: var(--season-clock-card-size);\n    max-width: 100%;\n    aspect-ratio: 1;\n    margin: 0 auto;\n  }\n\n  .clock {\n    display: block;\n    width: 100%;\n    height: 100%;\n    color: var(--season-clock-text);\n    font-family: var(--paper-font-body1_-_font-family, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif);\n  }\n\n  .clock-shadow {\n    fill: transparent;\n    stroke: rgba(205, 226, 240, 0.12);\n    stroke-width: 1;\n  }\n\n  .clock-face {\n    fill: transparent;\n    stroke: rgba(211, 228, 239, 0.16);\n    stroke-width: 1;\n  }\n\n  .season-arc {\n    fill: none;\n    stroke-linecap: butt;\n    stroke-width: 22;\n    opacity: 0.94;\n  }\n\n  .ring-guide {\n    fill: none;\n    stroke: rgba(218, 234, 244, 0.14);\n    stroke-width: 1;\n  }\n\n  .tick {\n    stroke: rgba(231, 241, 248, 0.18);\n    stroke-width: 0.7;\n    stroke-linecap: round;\n  }\n\n  .tick.month {\n    stroke: rgba(245, 249, 252, 0.76);\n    stroke-width: 1.7;\n  }\n\n  .month-names path {\n    fill: none;\n    stroke: none;\n  }\n\n  .month-name {\n    fill: rgba(255, 255, 255, 0.46);\n    font-size: 7.2px;\n    font-weight: 850;\n    letter-spacing: 1.15px;\n    text-anchor: middle;\n    dominant-baseline: middle;\n    pointer-events: none;\n  }\n\n  .season-label,\n  .event-label,\n  .event-date {\n    text-anchor: middle;\n    dominant-baseline: middle;\n    letter-spacing: 0;\n  }\n\n  .season-label {\n    font-size: 9px;\n    font-weight: 760;\n  }\n\n  .season-label .season-icon {\n    font-size: 11px;\n    font-weight: 600;\n  }\n\n  .event-line {\n    stroke: rgba(244, 248, 251, 0.72);\n    stroke-width: 1.3;\n    stroke-linecap: round;\n  }\n\n  .event-dot {\n    fill: #f7fbff;\n    stroke: rgba(4, 12, 18, 0.78);\n    stroke-width: 1;\n  }\n\n  .event-label {\n    fill: rgba(238, 245, 249, 0.9);\n    font-size: 7.2px;\n    font-weight: 760;\n    text-transform: uppercase;\n  }\n\n  .event-date {\n    fill: var(--season-clock-muted);\n    font-size: 7px;\n    font-weight: 650;\n  }\n\n  .hand {\n    stroke: rgba(255, 250, 229, 0.82);\n    stroke-width: 2.2;\n    stroke-linecap: round;\n    filter: url(\"#handGlow\");\n  }\n\n  .pivot-halo {\n    fill: rgba(255, 255, 255, 0.12);\n  }\n\n  .pivot {\n    fill: #f7fbff;\n    stroke: rgba(5, 12, 18, 0.75);\n    stroke-width: 1.2;\n  }\n\n  .center-readout {\n    text-anchor: middle;\n    dominant-baseline: middle;\n  }\n\n  .weekday {\n    fill: var(--season-clock-muted);\n    font-size: 11px;\n    font-weight: 650;\n  }\n\n  .date {\n    fill: var(--season-clock-text);\n    font-size: 15px;\n    font-weight: 760;\n  }\n\n  .day-text {\n    fill: #f1c84e;\n    font-size: 17px;\n    font-weight: 850;\n  }\n\n  .season-text {\n    font-size: 17px;\n    font-weight: 780;\n  }\n\n  .hemisphere,\n  .location,\n  .weather {\n    fill: var(--season-clock-muted);\n    font-size: 10.5px;\n    font-weight: 600;\n  }\n\n  .location,\n  .weather {\n    fill: var(--season-clock-subtle);\n  }\n", i = {
 	Spring: "#7acb8b",
 	Summer: "#e9bf52",
 	Autumn: "#d77a4b",
@@ -331,12 +333,27 @@ var C = {
 	show_location: !0,
 	show_solstice_labels: !0,
 	show_equinox_labels: !0,
+	show_month_names: !0,
 	show_month_markers: !0,
 	show_day_ticks: !0,
 	show_icons: !0,
 	show_weather: !0
-}, w = 250, T = {
+}, w = [
+	"JANUARY",
+	"FEBRUARY",
+	"MARCH",
+	"APRIL",
+	"MAY",
+	"JUNE",
+	"JULY",
+	"AUGUST",
+	"SEPTEMBER",
+	"OCTOBER",
+	"NOVEMBER",
+	"DECEMBER"
+], T = 250, E = {
 	arcRadius: 181,
+	monthNameRadius: 181,
 	tickOuter: 194,
 	dayTickInner: 187,
 	monthTickInner: 174,
@@ -345,7 +362,7 @@ var C = {
 	eventLabel: 224,
 	seasonLabel: 136,
 	handLength: 166
-}, E = class extends HTMLElement {
+}, D = class extends HTMLElement {
 	constructor() {
 		super(), this.attachShadow({ mode: "open" }), this._userConfig = {}, this._config = { ...C };
 	}
@@ -399,6 +416,7 @@ var C = {
         <circle class="clock-shadow" cx="250" cy="250" r="213"></circle>
         <circle class="clock-face" cx="250" cy="250" r="154"></circle>
         ${this.renderSeasonArcs(e)}
+        ${this.renderMonthNames(e)}
         ${this.renderTicks(e)}
         ${this.renderEventMarkers(e)}
         ${this.renderSeasonLabels(e)}
@@ -411,11 +429,22 @@ var C = {
 	}
 	renderSeasonArcs(e) {
 		return `<g class="season-arcs">${`
-      <circle class="ring-guide" cx="250" cy="250" r="${T.arcRadius + 12}"></circle>
-      <circle class="ring-guide" cx="250" cy="250" r="${T.arcRadius - 12}"></circle>
+      <circle class="ring-guide" cx="250" cy="250" r="${E.arcRadius + 12}"></circle>
+      <circle class="ring-guide" cx="250" cy="250" r="${E.arcRadius - 12}"></circle>
     `}${e.segments.map((t) => `
-      <path class="season-arc" d="${b(w, w, T.arcRadius, v(t.start, e.totalDays), v(t.end, e.totalDays))}" stroke="${i[t.name]}"></path>
+      <path class="season-arc" d="${b(T, T, E.arcRadius, v(t.start, e.totalDays), v(t.end, e.totalDays))}" stroke="${i[t.name]}"></path>
     `).join("")}</g>`;
+	}
+	renderMonthNames(e) {
+		return this.booleanConfig("show_month_names") ? `<g class="month-names">${w.map((t, n) => {
+			let r = f(new Date(e.year, n, 1)), i = n === 11 ? e.totalDays + 1 : f(new Date(e.year, n + 1, 1)), a = `season-clock-month-${n}`;
+			return `
+        <path id="${a}" d="${this.describeTextArc(E.monthNameRadius, v(r + 1.5, e.totalDays), v(i - 1.5, e.totalDays))}"></path>
+        <text class="month-name">
+          <textPath href="#${a}" startOffset="50%">${t}</textPath>
+        </text>
+      `;
+		}).join("")}</g>` : "";
 	}
 	renderTicks(e) {
 		let t = this.booleanConfig("show_day_ticks"), n = this.booleanConfig("show_month_markers");
@@ -424,14 +453,14 @@ var C = {
 		for (let a = 1; a <= e.totalDays; a += 1) {
 			let o = r.has(a);
 			if (o && !n || !o && !t) continue;
-			let s = v(a, e.totalDays), c = y(w, s, o ? T.monthTickInner : T.dayTickInner), l = y(w, s, T.tickOuter);
+			let s = v(a, e.totalDays), c = y(T, s, o ? E.monthTickInner : E.dayTickInner), l = y(T, s, E.tickOuter);
 			i.push(`<line class="tick${o ? " month" : ""}" x1="${c.x}" y1="${c.y}" x2="${l.x}" y2="${l.y}"></line>`);
 		}
 		return `<g class="ticks">${i.join("")}</g>`;
 	}
 	renderEventMarkers(e) {
 		return `<g class="event-markers">${e.events.filter((e) => this.shouldShowEvent(e)).map((t) => {
-			let n = v(f(new Date(e.year, t.month, t.day)), e.totalDays), r = y(w, n, T.eventInner), i = y(w, n, T.eventOuter), a = y(w, n, T.eventLabel);
+			let n = v(f(new Date(e.year, t.month, t.day)), e.totalDays), r = y(T, n, E.eventInner), i = y(T, n, E.eventOuter), a = y(T, n, E.eventLabel);
 			return `
           <line class="event-line" x1="${r.x}" y1="${r.y}" x2="${i.x}" y2="${i.y}"></line>
           <circle class="event-dot" cx="${i.x}" cy="${i.y}" r="3"></circle>
@@ -450,7 +479,7 @@ var C = {
 	}
 	renderSeasonLabels(e) {
 		return this.booleanConfig("show_season_name") ? `<g class="season-labels">${e.segments.map((t) => {
-			let n = y(w, v(g(t.start, t.end, e.totalDays), e.totalDays), T.seasonLabel), r = this.booleanConfig("show_icons") ? `<tspan class="season-icon">${a[t.name]} </tspan>` : "";
+			let n = y(T, v(g(t.start, t.end, e.totalDays), e.totalDays), E.seasonLabel), r = this.booleanConfig("show_icons") ? `<tspan class="season-icon">${a[t.name]} </tspan>` : "";
 			return `
         <text class="season-label" x="${n.x}" y="${n.y}" fill="${i[t.name]}">
           ${r}<tspan>${t.name}</tspan>
@@ -478,7 +507,7 @@ var C = {
 			currentSeason: h(p, r, n),
 			locationName: i.name,
 			weather: this.getWeather(),
-			handPoint: y(w, v(r, n), T.handLength),
+			handPoint: y(T, v(r, n), E.handLength),
 			weekday: new Intl.DateTimeFormat(void 0, { weekday: "long" }).format(e),
 			dateLabel: new Intl.DateTimeFormat(void 0, {
 				day: "numeric",
@@ -560,6 +589,22 @@ var C = {
 			"windy-variant": "Windy"
 		}[e] || String(e).replaceAll("_", " ").replaceAll("-", " ").replace(/\b\w/g, (e) => e.toUpperCase());
 	}
+	describeTextArc(e, t, n) {
+		let r = y(T, t, e), i = y(T, n, e), a = (n <= t ? n + 360 : n) - t <= 180 ? "0" : "1";
+		return [
+			"M",
+			r.x,
+			r.y,
+			"A",
+			e,
+			e,
+			0,
+			a,
+			1,
+			i.x,
+			i.y
+		].join(" ");
+	}
 	shouldShowEvent(e) {
 		let t = e.label.toLowerCase().includes("solstice"), n = e.label.toLowerCase().includes("equinox");
 		return t && this.booleanConfig("show_solstice_labels") || n && this.booleanConfig("show_equinox_labels");
@@ -571,7 +616,7 @@ var C = {
 		return String(e).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\"", "&quot;");
 	}
 };
-customElements.define("season-clock-card", E), window.customCards = window.customCards || [], window.customCards.push({
+customElements.define("season-clock-card", D), window.customCards = window.customCards || [], window.customCards.push({
 	type: "season-clock-card",
 	name: "Season Clock Card",
 	description: "A location-aware seasonal year clock for Home Assistant dashboards."

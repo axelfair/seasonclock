@@ -99,6 +99,7 @@ show_season_name: true
 show_location: true
 show_solstice_labels: true
 show_equinox_labels: true
+show_month_names: true
 show_month_markers: true
 show_day_ticks: true
 show_icons: true
@@ -125,6 +126,7 @@ show_weather: true
 | `show_location` | boolean | `true` | Shows hemisphere and location. |
 | `show_solstice_labels` | boolean | `true` | Shows solstice markers and labels. |
 | `show_equinox_labels` | boolean | `true` | Shows equinox markers and labels. |
+| `show_month_names` | boolean | `true` | Shows curved month names embedded into the season ring. |
 | `show_month_markers` | boolean | `true` | Shows longer monthly tick marks. |
 | `show_day_ticks` | boolean | `true` | Shows subtle daily tick marks. |
 | `show_icons` | boolean | `true` | Shows compact seasonal icons. |

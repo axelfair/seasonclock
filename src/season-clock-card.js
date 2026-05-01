@@ -35,15 +35,32 @@ const DEFAULT_CONFIG = {
   show_location: true,
   show_solstice_labels: true,
   show_equinox_labels: true,
+  show_month_names: true,
   show_month_markers: true,
   show_day_ticks: true,
   show_icons: true,
   show_weather: true
 };
 
+const MONTH_NAMES = [
+  "JANUARY",
+  "FEBRUARY",
+  "MARCH",
+  "APRIL",
+  "MAY",
+  "JUNE",
+  "JULY",
+  "AUGUST",
+  "SEPTEMBER",
+  "OCTOBER",
+  "NOVEMBER",
+  "DECEMBER"
+];
+
 const CENTER = 250;
 const LAYOUT = {
   arcRadius: 181,
+  monthNameRadius: 181,
   tickOuter: 194,
   dayTickInner: 187,
   monthTickInner: 174,
@@ -124,6 +141,7 @@ class SeasonClockCard extends HTMLElement {
         <circle class="clock-shadow" cx="250" cy="250" r="213"></circle>
         <circle class="clock-face" cx="250" cy="250" r="154"></circle>
         ${this.renderSeasonArcs(model)}
+        ${this.renderMonthNames(model)}
         ${this.renderTicks(model)}
         ${this.renderEventMarkers(model)}
         ${this.renderSeasonLabels(model)}
@@ -144,6 +162,26 @@ class SeasonClockCard extends HTMLElement {
       <path class="season-arc" d="${describeArc(CENTER, CENTER, LAYOUT.arcRadius, dayToAngle(segment.start, model.totalDays), dayToAngle(segment.end, model.totalDays))}" stroke="${SEASON_COLORS[segment.name]}"></path>
     `).join("");
     return `<g class="season-arcs">${guides}${arcs}</g>`;
+  }
+
+  renderMonthNames(model) {
+    if (!this.booleanConfig("show_month_names")) {
+      return "";
+    }
+
+    const monthPaths = MONTH_NAMES.map((name, month) => {
+      const start = getDayOfYear(new Date(model.year, month, 1));
+      const end = month === 11 ? model.totalDays + 1 : getDayOfYear(new Date(model.year, month + 1, 1));
+      const id = `season-clock-month-${month}`;
+      return `
+        <path id="${id}" d="${this.describeTextArc(LAYOUT.monthNameRadius, dayToAngle(start + 1.5, model.totalDays), dayToAngle(end - 1.5, model.totalDays))}"></path>
+        <text class="month-name">
+          <textPath href="#${id}" startOffset="50%">${name}</textPath>
+        </text>
+      `;
+    }).join("");
+
+    return `<g class="month-names">${monthPaths}</g>`;
   }
 
   renderTicks(model) {
@@ -391,6 +429,17 @@ class SeasonClockCard extends HTMLElement {
       "windy-variant": "Windy"
     };
     return labels[value] || String(value).replaceAll("_", " ").replaceAll("-", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  describeTextArc(radius, startAngle, endAngle) {
+    const start = pointAt(CENTER, startAngle, radius);
+    const end = pointAt(CENTER, endAngle, radius);
+    const normalizedEnd = endAngle <= startAngle ? endAngle + 360 : endAngle;
+    const largeArcFlag = normalizedEnd - startAngle <= 180 ? "0" : "1";
+    return [
+      "M", start.x, start.y,
+      "A", radius, radius, 0, largeArcFlag, 1, end.x, end.y
+    ].join(" ");
   }
 
   shouldShowEvent(event) {
