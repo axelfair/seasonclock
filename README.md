@@ -1,14 +1,8 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/axelfair/seasonclock/main/assets/logo.svg" alt="Season Clock Card" width="520">
-</p>
-
 # Season Clock Card
 
 Season Clock Card is a Home Assistant Lovelace card that shows a premium, location-aware seasonal year clock. It is designed to feel like a physical smart wall clock for Home Assistant dashboards.
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/axelfair/seasonclock/main/assets/preview.png" alt="Season Clock Card preview" width="500">
-</p>
+![Season Clock Card screenshot](assets/preview.png)
 
 ## Features
 
@@ -53,10 +47,11 @@ HACS installs the bundled card from the repository-name-matched dashboard plugin
 seasonclock.js
 ```
 
-After installing or upgrading through HACS, refresh Home Assistant frontend resources or clear the browser cache if the old card bundle is still being served. The expected HACS resource path is:
+After installing or upgrading through HACS, refresh Home Assistant frontend resources or clear the browser cache if the old card bundle is still being served. The expected HACS resource is:
 
-```text
-/hacsfiles/seasonclock/seasonclock.js
+```yaml
+url: /hacsfiles/seasonclock/seasonclock.js
+type: module
 ```
 
 ### Manual Installation
@@ -75,16 +70,9 @@ to:
 
 Then add the Lovelace resource:
 
-URL:
-
-```text
-/local/community/season-clock-card/seasonclock.js
-```
-
-Type:
-
-```text
-JavaScript module
+```yaml
+url: /local/community/season-clock-card/seasonclock.js
+type: module
 ```
 
 ## Example Lovelace YAML

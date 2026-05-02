@@ -1,12 +1,12 @@
 {
-  "name": "season-clock-card",
+  "name": "seasonclock",
   "version": "0.1.9",
   "description": "A Home Assistant Lovelace card showing a beautiful location-aware seasonal year clock.",
   "type": "module",
   "private": false,
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "vite build && node scripts/copy-compat.mjs",
+    "build": "vite build",
     "preview": "vite preview --host 0.0.0.0"
   },
   "devDependencies": {

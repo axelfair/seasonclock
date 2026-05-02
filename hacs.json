@@ -1,6 +1,4 @@
 {
   "name": "Season Clock Card",
-  "render_readme": true,
-  "filename": "seasonclock.js",
-  "homeassistant": "2024.1.0"
+  "render_readme": true
 }
