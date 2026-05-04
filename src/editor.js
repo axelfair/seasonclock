@@ -54,6 +54,8 @@ export class SeasonClockCardEditor extends HTMLElement {
     super();
     this._config = {};
     this._updatingForm = false;
+    this._pendingFormUpdate = false;
+    this._pendingFormValue = null;
   }
 
   setConfig(config) {
@@ -101,12 +103,7 @@ export class SeasonClockCardEditor extends HTMLElement {
     const form = this.querySelector("ha-form");
     form.schema = EDITOR_SCHEMA;
     form.computeLabel = (schema) => this.getLabel(schema);
-    form.addEventListener("value-changed", (event) => {
-      if (this._updatingForm) {
-        return;
-      }
-      this.updateConfig(event.detail.value || {});
-    });
+    form.addEventListener("value-changed", (event) => this.handleFormValueChanged(event));
 
     this.querySelectorAll("[data-display-action]").forEach((button) => {
       button.addEventListener("click", () => {
@@ -131,6 +128,30 @@ export class SeasonClockCardEditor extends HTMLElement {
       bubbles: true,
       composed: true
     }));
+  }
+
+  handleFormValueChanged(event) {
+    if (this._updatingForm) {
+      return;
+    }
+
+    const value = event.detail?.value;
+    this._pendingFormValue = this.isConfigObject(value) ? value : null;
+
+    if (this._pendingFormUpdate) {
+      return;
+    }
+
+    this._pendingFormUpdate = true;
+    queueMicrotask(() => {
+      this._pendingFormUpdate = false;
+      const form = this.querySelector("ha-form");
+      const formData = this.isConfigObject(form?.data) ? form.data : null;
+      const valueConfig = this._pendingFormValue;
+      const nextConfig = formData && valueConfig ? { ...formData, ...valueConfig } : valueConfig || formData || {};
+      this._pendingFormValue = null;
+      this.updateConfig(nextConfig);
+    });
   }
 
   updateForm() {
@@ -174,6 +195,10 @@ export class SeasonClockCardEditor extends HTMLElement {
       weather_entity: "Weather entity"
     };
     return labels[schema.name] || schema.name?.replaceAll("_", " ") || "";
+  }
+
+  isConfigObject(value) {
+    return value !== null && typeof value === "object" && !Array.isArray(value);
   }
 }
 

@@ -93,7 +93,7 @@ var e = [
 	}
 ], r = class extends HTMLElement {
 	constructor() {
-		super(), this._config = {}, this._updatingForm = !1;
+		super(), this._config = {}, this._updatingForm = !1, this._pendingFormUpdate = !1, this._pendingFormValue = null;
 	}
 	setConfig(e) {
 		this._config = e || {}, this.updateForm();
@@ -105,9 +105,7 @@ var e = [
 		if (!this._hass || this._rendered) return;
 		this.innerHTML = "\n      <style>\n        .display-actions {\n          display: flex;\n          gap: 8px;\n          margin: 12px 0;\n        }\n\n        .display-actions button {\n          border: 1px solid var(--divider-color, rgba(127, 127, 127, 0.28));\n          border-radius: 8px;\n          padding: 8px 12px;\n          background: var(--secondary-background-color, transparent);\n          color: var(--primary-text-color);\n          cursor: pointer;\n          font: inherit;\n          font-size: 13px;\n          font-weight: 600;\n        }\n      </style>\n      <ha-form></ha-form>\n      <div class=\"display-actions\" aria-label=\"Clock face item shortcuts\">\n        <button type=\"button\" data-display-action=\"on\">Turn all items on</button>\n        <button type=\"button\" data-display-action=\"off\">Turn all items off</button>\n      </div>\n    ";
 		let t = this.querySelector("ha-form");
-		t.schema = n, t.computeLabel = (e) => this.getLabel(e), t.addEventListener("value-changed", (e) => {
-			this._updatingForm || this.updateConfig(e.detail.value || {});
-		}), this.querySelectorAll("[data-display-action]").forEach((t) => {
+		t.schema = n, t.computeLabel = (e) => this.getLabel(e), t.addEventListener("value-changed", (e) => this.handleFormValueChanged(e)), this.querySelectorAll("[data-display-action]").forEach((t) => {
 			t.addEventListener("click", () => {
 				let n = t.dataset.displayAction === "on", r = { ...this._config || {} };
 				e.forEach((e) => {
@@ -124,6 +122,18 @@ var e = [
 			detail: { config: this._config },
 			bubbles: !0,
 			composed: !0
+		}));
+	}
+	handleFormValueChanged(e) {
+		if (this._updatingForm) return;
+		let t = e.detail?.value;
+		this._pendingFormValue = this.isConfigObject(t) ? t : null, !this._pendingFormUpdate && (this._pendingFormUpdate = !0, queueMicrotask(() => {
+			this._pendingFormUpdate = !1;
+			let e = this.querySelector("ha-form"), t = this.isConfigObject(e?.data) ? e.data : null, n = this._pendingFormValue, r = t && n ? {
+				...t,
+				...n
+			} : n || t || {};
+			this._pendingFormValue = null, this.updateConfig(r);
 		}));
 	}
 	updateForm() {
@@ -159,6 +169,9 @@ var e = [
 			show_weather: "Weather",
 			weather_entity: "Weather entity"
 		}[e.name] || e.name?.replaceAll("_", " ") || "";
+	}
+	isConfigObject(e) {
+		return typeof e == "object" && !!e && !Array.isArray(e);
 	}
 };
 customElements.get("season-clock-card-editor") || customElements.define("season-clock-card-editor", r);
