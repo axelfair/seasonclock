@@ -75,6 +75,7 @@ var e = [
 	{
 		type: "grid",
 		name: "",
+		flatten: !0,
 		schema: [{
 			name: "latitude",
 			selector: { number: { mode: "box" } }
@@ -86,6 +87,7 @@ var e = [
 	{
 		type: "grid",
 		name: "Clock face items",
+		flatten: !0,
 		schema: e.map((e) => ({
 			name: e,
 			selector: { boolean: {} }
@@ -96,7 +98,7 @@ var e = [
 		super(), this._config = {}, this._updatingForm = !1, this._pendingFormUpdate = !1, this._pendingFormValue = null;
 	}
 	setConfig(e) {
-		this._config = e || {}, this.updateForm();
+		this._config = this.normalizeConfig(e || {}), this.updateForm();
 	}
 	set hass(e) {
 		this._hass = e, this.updateForm();
@@ -117,7 +119,7 @@ var e = [
 	updateConfig(e) {
 		this._config = {
 			...this._config || {},
-			...e || {}
+			...this.normalizeConfig(e || {})
 		}, this.updateForm(), this.dispatchEvent(new CustomEvent("config-changed", {
 			detail: { config: this._config },
 			bubbles: !0,
@@ -172,6 +174,18 @@ var e = [
 	}
 	isConfigObject(e) {
 		return typeof e == "object" && !!e && !Array.isArray(e);
+	}
+	normalizeConfig(t) {
+		let n = { ...t || {} };
+		return Object.values(t || {}).forEach((t) => {
+			this.isConfigObject(t) && [
+				"latitude",
+				"longitude",
+				...e
+			].forEach((e) => {
+				e in t && (n[e] = t[e]);
+			});
+		}), delete n[""], delete n["Clock face items"], n;
 	}
 };
 customElements.get("season-clock-card-editor") || customElements.define("season-clock-card-editor", r);
@@ -375,6 +389,19 @@ var S = {
 	show_moon_phase: !0,
 	show_weather: !0
 }, C = [
+	"show_date",
+	"show_day_number",
+	"show_season_name",
+	"show_location",
+	"show_solstice_labels",
+	"show_equinox_labels",
+	"show_month_names",
+	"show_month_markers",
+	"show_day_ticks",
+	"show_icons",
+	"show_moon_phase",
+	"show_weather"
+], w = [
 	"JANUARY",
 	"FEBRUARY",
 	"MARCH",
@@ -387,7 +414,7 @@ var S = {
 	"OCTOBER",
 	"NOVEMBER",
 	"DECEMBER"
-], w = 250, T = {
+], T = 250, E = {
 	arcRadius: 181,
 	monthNameRadius: 181,
 	tickOuter: 194,
@@ -401,7 +428,7 @@ var S = {
 	todayRadius: 207,
 	moonRadius: 166,
 	handLength: 166
-}, E = class extends HTMLElement {
+}, D = class extends HTMLElement {
 	constructor() {
 		super(), this.attachShadow({ mode: "open" }), this._userConfig = {}, this._config = { ...S };
 	}
@@ -412,9 +439,9 @@ var S = {
 		return { type: "custom:season-clock-card" };
 	}
 	setConfig(e) {
-		this._userConfig = e || {}, this._config = {
+		this._userConfig = this.normalizeConfig(e || {}), this._config = {
 			...S,
-			...e
+			...this._userConfig
 		}, this.render();
 	}
 	set hass(e) {
@@ -513,7 +540,7 @@ var S = {
 	}
 	renderMoonPhase(e) {
 		if (!this.booleanConfig("show_moon_phase")) return "";
-		let t = v(w, _(e.dayOfYear, e.totalDays), T.moonRadius);
+		let t = v(T, _(e.dayOfYear, e.totalDays), E.moonRadius);
 		return `
       <g class="moon-phase" aria-label="${this.escape(e.moonPhase.label)}">
         <circle class="moon-badge" cx="${t.x}" cy="${t.y}" r="12"></circle>
@@ -522,10 +549,10 @@ var S = {
     `;
 	}
 	renderProgressLayer(e) {
-		let t = e.currentSeason.start + (e.currentSeason.end - e.currentSeason.start) * (e.seasonProgress / 100), n = y(w, w, T.progressRadius, _(e.currentSeason.start, e.totalDays), _(t, e.totalDays)), r = v(w, _(e.dayOfYear, e.totalDays), T.todayRadius), i = v(w, _(e.nextEvent.dayOfYear, e.totalDays), T.todayRadius);
+		let t = e.currentSeason.start + (e.currentSeason.end - e.currentSeason.start) * (e.seasonProgress / 100), n = y(T, T, E.progressRadius, _(e.currentSeason.start, e.totalDays), _(t, e.totalDays)), r = v(T, _(e.dayOfYear, e.totalDays), E.todayRadius), i = v(T, _(e.nextEvent.dayOfYear, e.totalDays), E.todayRadius);
 		return `
       <g class="progress-layer">
-        <circle class="progress-track" cx="250" cy="250" r="${T.progressRadius}"></circle>
+        <circle class="progress-track" cx="250" cy="250" r="${E.progressRadius}"></circle>
         <path class="season-progress" d="${n}" stroke="${a[e.currentSeason.name]}"></path>
         <circle class="next-event-dot" cx="${i.x}" cy="${i.y}" r="3.2"></circle>
         <circle class="today-dot" cx="${r.x}" cy="${r.y}" r="4.2"></circle>
@@ -534,20 +561,20 @@ var S = {
 	}
 	renderSeasonArcs(e) {
 		return `<g class="season-arcs">${`
-      <circle class="ring-bevel" cx="250" cy="250" r="${T.arcRadius}"></circle>
-      <circle class="ring-inner-shadow" cx="250" cy="250" r="${T.arcRadius - 16}"></circle>
-      <circle class="ring-outer-highlight" cx="250" cy="250" r="${T.arcRadius + 15}"></circle>
-      <circle class="ring-guide" cx="250" cy="250" r="${T.arcRadius + 12}"></circle>
-      <circle class="ring-guide" cx="250" cy="250" r="${T.arcRadius - 12}"></circle>
+      <circle class="ring-bevel" cx="250" cy="250" r="${E.arcRadius}"></circle>
+      <circle class="ring-inner-shadow" cx="250" cy="250" r="${E.arcRadius - 16}"></circle>
+      <circle class="ring-outer-highlight" cx="250" cy="250" r="${E.arcRadius + 15}"></circle>
+      <circle class="ring-guide" cx="250" cy="250" r="${E.arcRadius + 12}"></circle>
+      <circle class="ring-guide" cx="250" cy="250" r="${E.arcRadius - 12}"></circle>
     `}${e.segments.map((t) => `
-      <path class="season-arc" d="${y(w, w, T.arcRadius, _(t.start, e.totalDays), _(t.end, e.totalDays))}" stroke="${a[t.name]}"></path>
+      <path class="season-arc" d="${y(T, T, E.arcRadius, _(t.start, e.totalDays), _(t.end, e.totalDays))}" stroke="${a[t.name]}"></path>
     `).join("")}</g>`;
 	}
 	renderMonthNames(e) {
-		return this.booleanConfig("show_month_names") ? `<g class="month-names">${C.map((t, n) => {
+		return this.booleanConfig("show_month_names") ? `<g class="month-names">${w.map((t, n) => {
 			let r = f(new Date(e.year, n, 1)), i = n === 11 ? e.totalDays + 1 : f(new Date(e.year, n + 1, 1)), a = `season-clock-month-${n}`;
 			return `
-        <path id="${a}" d="${this.describeTextArc(T.monthNameRadius, _(r + 1.5, e.totalDays), _(i - 1.5, e.totalDays))}"></path>
+        <path id="${a}" d="${this.describeTextArc(E.monthNameRadius, _(r + 1.5, e.totalDays), _(i - 1.5, e.totalDays))}"></path>
         <text class="month-name">
           <textPath href="#${a}" startOffset="50%">${t}</textPath>
         </text>
@@ -561,14 +588,14 @@ var S = {
 		for (let a = 1; a <= e.totalDays; a += 1) {
 			let o = r.has(a);
 			if (o && !n || !o && !t) continue;
-			let s = _(a, e.totalDays), c = v(w, s, o ? T.monthTickInner : T.dayTickInner), l = v(w, s, T.tickOuter);
+			let s = _(a, e.totalDays), c = v(T, s, o ? E.monthTickInner : E.dayTickInner), l = v(T, s, E.tickOuter);
 			i.push(`<line class="tick${o ? " month" : ""}" x1="${c.x}" y1="${c.y}" x2="${l.x}" y2="${l.y}"></line>`);
 		}
 		return `<g class="ticks">${i.join("")}</g>`;
 	}
 	renderEventMarkers(e) {
 		return `<g class="event-markers">${e.events.filter((e) => this.shouldShowEvent(e)).map((t) => {
-			let n = _(f(new Date(e.year, t.month, t.day)), e.totalDays), r = v(w, n, T.eventInner), i = v(w, n, T.eventOuter), a = v(w, n, T.eventLabel);
+			let n = _(f(new Date(e.year, t.month, t.day)), e.totalDays), r = v(T, n, E.eventInner), i = v(T, n, E.eventOuter), a = v(T, n, E.eventLabel);
 			return `
           <line class="event-line" x1="${r.x}" y1="${r.y}" x2="${i.x}" y2="${i.y}"></line>
           <circle class="event-dot" cx="${i.x}" cy="${i.y}" r="3"></circle>
@@ -684,7 +711,7 @@ var S = {
 			locationName: i.name,
 			weather: this.getWeather(),
 			weatherInfo: this.getWeatherInfo(),
-			handPoint: v(w, _(r, n), T.handLength),
+			handPoint: v(T, _(r, n), E.handLength),
 			weekday: new Intl.DateTimeFormat(void 0, { weekday: "long" }).format(e),
 			dateShort: new Intl.DateTimeFormat(void 0, {
 				day: "numeric",
@@ -855,7 +882,7 @@ var S = {
 		}[e] || "○";
 	}
 	describeTextArc(e, t, n) {
-		let r = v(w, t, e), i = v(w, n, e), a = (n <= t ? n + 360 : n) - t <= 180 ? "0" : "1";
+		let r = v(T, t, e), i = v(T, n, e), a = (n <= t ? n + 360 : n) - t <= 180 ? "0" : "1";
 		return [
 			"M",
 			r.x,
@@ -877,11 +904,23 @@ var S = {
 	booleanConfig(e) {
 		return this._config[e] !== !1;
 	}
+	normalizeConfig(e) {
+		let t = { ...e || {} };
+		return Object.values(e || {}).forEach((e) => {
+			typeof e != "object" || !e || Array.isArray(e) || [
+				"latitude",
+				"longitude",
+				...C
+			].forEach((n) => {
+				n in e && (t[n] = e[n]);
+			});
+		}), delete t[""], delete t["Clock face items"], t;
+	}
 	escape(e) {
 		return String(e).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\"", "&quot;");
 	}
 };
-customElements.get("season-clock-card") || customElements.define("season-clock-card", E), window.customCards = Array.isArray(window.customCards) ? window.customCards : [], window.customCards.some((e) => e?.type === "season-clock-card") || window.customCards.push({
+customElements.get("season-clock-card") || customElements.define("season-clock-card", D), window.customCards = Array.isArray(window.customCards) ? window.customCards : [], window.customCards.some((e) => e?.type === "season-clock-card") || window.customCards.push({
 	type: "season-clock-card",
 	name: "Season Clock Card",
 	description: "A location-aware seasonal year clock for Home Assistant dashboards."

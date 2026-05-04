@@ -41,6 +41,21 @@ const DEFAULT_CONFIG = {
   show_weather: true
 };
 
+const DISPLAY_OPTIONS = [
+  "show_date",
+  "show_day_number",
+  "show_season_name",
+  "show_location",
+  "show_solstice_labels",
+  "show_equinox_labels",
+  "show_month_names",
+  "show_month_markers",
+  "show_day_ticks",
+  "show_icons",
+  "show_moon_phase",
+  "show_weather"
+];
+
 const MONTH_NAMES = [
   "JANUARY",
   "FEBRUARY",
@@ -92,8 +107,8 @@ class SeasonClockCard extends HTMLElement {
   }
 
   setConfig(config) {
-    this._userConfig = config || {};
-    this._config = { ...DEFAULT_CONFIG, ...config };
+    this._userConfig = this.normalizeConfig(config || {});
+    this._config = { ...DEFAULT_CONFIG, ...this._userConfig };
     this.render();
   }
 
@@ -677,6 +692,25 @@ class SeasonClockCard extends HTMLElement {
 
   booleanConfig(key) {
     return this._config[key] !== false;
+  }
+
+  normalizeConfig(config) {
+    const normalized = { ...(config || {}) };
+    Object.values(config || {}).forEach((value) => {
+      if (value === null || typeof value !== "object" || Array.isArray(value)) {
+        return;
+      }
+
+      ["latitude", "longitude", ...DISPLAY_OPTIONS].forEach((key) => {
+        if (key in value) {
+          normalized[key] = value[key];
+        }
+      });
+    });
+
+    delete normalized[""];
+    delete normalized["Clock face items"];
+    return normalized;
   }
 
   escape(value) {

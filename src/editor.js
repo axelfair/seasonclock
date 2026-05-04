@@ -42,11 +42,11 @@ const EDITOR_SCHEMA = [
   { name: "location_name", selector: { text: {} } },
   { name: "hemisphere", selector: { select: { options: ["auto", "northern", "southern"] } } },
   { name: "card_size", selector: { number: { min: 280, max: 600, mode: "slider" } } },
-  { type: "grid", name: "", schema: [
+  { type: "grid", name: "", flatten: true, schema: [
     { name: "latitude", selector: { number: { mode: "box" } } },
     { name: "longitude", selector: { number: { mode: "box" } } }
   ] },
-  { type: "grid", name: "Clock face items", schema: DISPLAY_OPTIONS.map((name) => ({ name, selector: { boolean: {} } })) }
+  { type: "grid", name: "Clock face items", flatten: true, schema: DISPLAY_OPTIONS.map((name) => ({ name, selector: { boolean: {} } })) }
 ];
 
 export class SeasonClockCardEditor extends HTMLElement {
@@ -59,7 +59,7 @@ export class SeasonClockCardEditor extends HTMLElement {
   }
 
   setConfig(config) {
-    this._config = config || {};
+    this._config = this.normalizeConfig(config || {});
     this.updateForm();
   }
 
@@ -121,7 +121,7 @@ export class SeasonClockCardEditor extends HTMLElement {
   }
 
   updateConfig(config) {
-    this._config = { ...(this._config || {}), ...(config || {}) };
+    this._config = { ...(this._config || {}), ...this.normalizeConfig(config || {}) };
     this.updateForm();
     this.dispatchEvent(new CustomEvent("config-changed", {
       detail: { config: this._config },
@@ -199,6 +199,25 @@ export class SeasonClockCardEditor extends HTMLElement {
 
   isConfigObject(value) {
     return value !== null && typeof value === "object" && !Array.isArray(value);
+  }
+
+  normalizeConfig(config) {
+    const normalized = { ...(config || {}) };
+    Object.values(config || {}).forEach((value) => {
+      if (!this.isConfigObject(value)) {
+        return;
+      }
+
+      ["latitude", "longitude", ...DISPLAY_OPTIONS].forEach((key) => {
+        if (key in value) {
+          normalized[key] = value[key];
+        }
+      });
+    });
+
+    delete normalized[""];
+    delete normalized["Clock face items"];
+    return normalized;
   }
 }
 
