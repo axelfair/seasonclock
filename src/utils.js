@@ -124,3 +124,14 @@ export function polarToCartesian(x, y, radius, angle) {
 export function round(value) {
   return Math.round(value * 100) / 100;
 }
+
+// Returns daylight hours for a given latitude (degrees) and day of year.
+// Clamps to [0, 24] to handle polar day/night.
+export function getDayLength(latitude, dayOfYear) {
+  const decl = -23.45 * Math.cos(2 * Math.PI * (dayOfYear + 10) / 365);
+  const latRad = latitude * Math.PI / 180;
+  const declRad = decl * Math.PI / 180;
+  const cosHA = -Math.tan(latRad) * Math.tan(declRad);
+  const hourAngle = Math.acos(Math.max(-1, Math.min(1, cosHA)));
+  return (2 * hourAngle / Math.PI) * 12;
+}

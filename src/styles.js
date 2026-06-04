@@ -406,4 +406,39 @@ export const CARD_STYLES = `
     stroke-width: 4;
     opacity: 0.38;
   }
+
+  .dn-arc {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.2);
+    stroke-width: 0.7;
+    stroke-dasharray: 2 3;
+  }
+
+  .dn-horizon {
+    stroke: rgba(255, 255, 255, 0.6);
+    stroke-width: 1.2;
+    stroke-linecap: round;
+  }
+
+  .dn-risesetdot {
+    fill: rgba(255, 215, 100, 0.62);
+  }
+
+  .dn-sun-disc {
+    fill: #f8d832;
+    stroke: rgba(255, 220, 60, 0.5);
+    stroke-width: 1.2;
+  }
+
+  .dn-sun-glow {
+    fill: rgba(252, 220, 60, 0.28);
+    filter: url("#progressGlow");
+  }
+
+  .dn-moon {
+    font-size: 11px;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    fill: rgba(220, 235, 255, 0.9);
+  }
 `;

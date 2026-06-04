@@ -11,6 +11,7 @@ import {
   dayToAngle,
   describeArc,
   getCurrentSeason,
+  getDayLength,
   getDayOfYear,
   getMonthStartDays,
   isLeapYear,
@@ -245,6 +246,96 @@ class SeasonClockCard extends HTMLElement {
     return `<line class="hand-precision" x1="${start.x}" y1="${start.y}" x2="${end.x}" y2="${end.y}"></line>`;
   }
 
+  renderDayNightComplication(x, y, radius, model) {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const time = hours + minutes / 60;
+
+    // --- Seasonal horizon offset ---
+    // Day length (hours) from latitude + day of year using solar declination formula.
+    // horizonOffset: positive = horizon shifts DOWN = more sky = longer day (summer).
+    //                negative = horizon shifts UP = less sky = shorter day (winter).
+    // Derived so the sun arc hits exactly the horizon at sunrise/sunset.
+    const arcR = 24;
+    const innerR = radius - 2;
+    const latitude = this.getLocation().latitude;
+    const dayLength = getDayLength(latitude, model.dayOfYear);
+    const horizonOffset = Math.max(
+      -innerR * 0.82,
+      Math.min(
+        innerR * 0.82,
+        arcR * Math.sin((dayLength / 24 - 0.5) * Math.PI)
+      )
+    );
+    const horizonY = y + horizonOffset;
+
+    // Sunrise/sunset dots: where the orbit circle intersects the horizon line
+    const riseSetR = Math.sqrt(Math.max(0, arcR * arcR - horizonOffset * horizonOffset));
+
+    // --- Sun / moon position (24h orbit) ---
+    // 6am = right (0°), noon = top (-90°), 6pm = left (180°), midnight = bottom (90°)
+    const sunAngleDeg = 90 - (time / 24) * 360;
+    const sunRad = sunAngleDeg * Math.PI / 180;
+    const moonRad = (sunAngleDeg + 180) * Math.PI / 180;
+
+    const rnd = (v) => Math.round(v * 100) / 100;
+    const sunX = rnd(x + arcR * Math.cos(sunRad));
+    const sunY = rnd(y + arcR * Math.sin(sunRad));
+    const moonX = rnd(x + arcR * Math.cos(moonRad));
+    const moonY = rnd(y + arcR * Math.sin(moonRad));
+
+    const isDaytime = sunY < horizonY;
+    const accent = this.escape(isDaytime ? "#f1c84e" : "#69aee8");
+    const skyFill = this.escape(isDaytime ? "rgba(96, 168, 232, 0.96)" : "rgba(5, 14, 42, 0.97)");
+    const groundFill = this.escape("rgba(14, 24, 10, 0.94)");
+
+    const uid = `${x}-${y}`;
+    const skyH = rnd(radius + horizonOffset);
+    const gndY = rnd(horizonY);
+    const gndH = rnd(radius - horizonOffset);
+
+    return `
+      <g class="complication daynight-complication">
+        <defs>
+          <clipPath id="dn-face-${uid}">
+            <circle cx="${x}" cy="${y}" r="${innerR}"></circle>
+          </clipPath>
+          <clipPath id="dn-sky-${uid}">
+            <rect x="${x - radius}" y="${y - radius}" width="${radius * 2}" height="${skyH}"></rect>
+          </clipPath>
+          <clipPath id="dn-gnd-${uid}">
+            <rect x="${x - radius}" y="${gndY}" width="${radius * 2}" height="${gndH}"></rect>
+          </clipPath>
+        </defs>
+        <circle class="complication-socket" cx="${x}" cy="${y}" r="${radius + 7}"></circle>
+        <circle class="complication-socket-highlight" cx="${x - 1.4}" cy="${y - 1.4}" r="${radius + 5}"></circle>
+        <circle class="complication-shadow" cx="${x + 1.8}" cy="${y + 2.4}" r="${radius + 1}"></circle>
+        <circle class="complication-face" cx="${x}" cy="${y}" r="${radius}"></circle>
+        <circle class="complication-inner-shadow" cx="${x}" cy="${y}" r="${radius - 4}"></circle>
+        <g clip-path="url(#dn-face-${uid})">
+          <g clip-path="url(#dn-sky-${uid})">
+            <circle cx="${x}" cy="${y}" r="${innerR}" fill="${skyFill}"></circle>
+          </g>
+          <g clip-path="url(#dn-gnd-${uid})">
+            <circle cx="${x}" cy="${y}" r="${innerR}" fill="${groundFill}"></circle>
+          </g>
+          <circle class="dn-arc" cx="${x}" cy="${y}" r="${arcR}"></circle>
+          <line class="dn-horizon" x1="${rnd(x - innerR + 1)}" y1="${rnd(horizonY)}" x2="${rnd(x + innerR - 1)}" y2="${rnd(horizonY)}"></line>
+          <circle class="dn-risesetdot" cx="${rnd(x + riseSetR)}" cy="${rnd(horizonY)}" r="1.5"></circle>
+          <circle class="dn-risesetdot" cx="${rnd(x - riseSetR)}" cy="${rnd(horizonY)}" r="1.5"></circle>
+          <g clip-path="url(#dn-sky-${uid})">
+            <circle class="dn-sun-glow" cx="${sunX}" cy="${sunY}" r="7"></circle>
+            <circle class="dn-sun-disc" cx="${sunX}" cy="${sunY}" r="4.5"></circle>
+            <text class="dn-moon" x="${moonX}" y="${moonY}">☾</text>
+          </g>
+        </g>
+        <circle class="complication-ring" cx="${x}" cy="${y}" r="${radius - 3}" stroke="${accent}"></circle>
+        <line class="complication-marker" x1="${x}" y1="${y - radius + 6}" x2="${x}" y2="${y - radius + 15}" stroke="${accent}"></line>
+      </g>
+    `;
+  }
+
   renderProgressLayer(model) {
     const progressEnd = model.currentSeason.start + ((model.currentSeason.end - model.currentSeason.start) * (model.seasonProgress / 100));
     const progressPath = describeArc(
@@ -379,17 +470,9 @@ class SeasonClockCard extends HTMLElement {
       }));
     }
 
+    complications.push(this.renderDayNightComplication(166, 250, 40, model));
+
     if (showSeason) {
-      complications.push(this.renderComplication({
-        className: "season-complication",
-        x: 166,
-        y: 250,
-        radius: 40,
-        title: model.currentSeason.name,
-        primary: `${model.seasonProgress}%`,
-        secondary: "complete",
-        accent: SEASON_COLORS[model.currentSeason.name]
-      }));
       complications.push(this.renderComplication({
         className: "event-complication",
         x: 334,
