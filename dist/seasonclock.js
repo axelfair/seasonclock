@@ -95,7 +95,7 @@ var e = [
 	}
 ], r = class extends HTMLElement {
 	constructor() {
-		super(), this._config = {}, this._updatingForm = !1, this._pendingFormUpdate = !1, this._pendingFormValue = null;
+		super(), this._config = {}, this._updatingForm = !1;
 	}
 	setConfig(e) {
 		this._config = this.normalizeConfig(e || {}), this.updateForm();
@@ -129,14 +129,7 @@ var e = [
 	handleFormValueChanged(e) {
 		if (this._updatingForm) return;
 		let t = e.detail?.value;
-		this._pendingFormValue = this.isConfigObject(t) ? t : null, !this._pendingFormUpdate && (this._pendingFormUpdate = !0, queueMicrotask(() => {
-			this._pendingFormUpdate = !1;
-			let e = this.querySelector("ha-form"), t = this.isConfigObject(e?.data) ? e.data : null, n = this._pendingFormValue, r = t && n ? {
-				...t,
-				...n
-			} : n || t || {};
-			this._pendingFormValue = null, this.updateConfig(r);
-		}));
+		this.isConfigObject(t) && this.updateConfig(t);
 	}
 	updateForm() {
 		if (!this._hass) return;
@@ -148,9 +141,9 @@ var e = [
 		e && (this._updatingForm = !0, e.hass = this._hass, e.data = {
 			...t,
 			...this._config || {}
-		}, queueMicrotask(() => {
+		}, setTimeout(() => {
 			this._updatingForm = !1;
-		}));
+		}, 0));
 	}
 	getLabel(e) {
 		return {
@@ -191,8 +184,8 @@ var e = [
 customElements.get("season-clock-card-editor") || customElements.define("season-clock-card-editor", r);
 //#endregion
 //#region src/styles.js
-var i = "\n  :host {\n    display: block;\n    --season-clock-card-size: min(var(--season-clock-size, 500px), 100%);\n    --season-clock-text: #f3f8fc;\n    --season-clock-muted: #a7b6c1;\n    --season-clock-subtle: #6f8190;\n    --clock-shadow-deep: rgba(0, 0, 0, 0.72);\n    --clock-shadow-soft: rgba(0, 0, 0, 0.36);\n    --clock-highlight: rgba(255, 255, 255, 0.22);\n    --clock-glass: rgba(255, 255, 255, 0.08);\n    --clock-rim: rgba(206, 220, 229, 0.42);\n  }\n\n  ha-card {\n    display: block;\n    overflow: hidden;\n    border-radius: var(--ha-card-border-radius, 8px);\n    background: transparent;\n    border: 0;\n    box-shadow: none;\n  }\n\n  .header {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    gap: 12px;\n    padding: 14px 16px 0;\n  }\n\n  .title {\n    color: var(--primary-text-color, var(--season-clock-text));\n    font-size: 15px;\n    font-weight: 700;\n    line-height: 1.2;\n  }\n\n  .wrap {\n    width: var(--season-clock-card-size);\n    max-width: 100%;\n    aspect-ratio: 1;\n    margin: 0 auto;\n    filter:\n      drop-shadow(0 24px 42px var(--clock-shadow-deep))\n      drop-shadow(0 0 22px rgba(105, 174, 232, 0.08));\n  }\n\n  .clock {\n    display: block;\n    width: 100%;\n    height: 100%;\n    color: var(--season-clock-text);\n    font-family: var(--paper-font-body1_-_font-family, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif);\n  }\n\n  .clock-shadow {\n    fill: transparent;\n    stroke: rgba(236, 246, 252, 0.14);\n    stroke-width: 1.2;\n    filter: url(\"#dialInnerShadow\");\n  }\n\n  .outer-rim-glow {\n    fill: none;\n    stroke: rgba(145, 183, 210, 0.16);\n    stroke-width: 5;\n  }\n\n  .clock-face {\n    fill: url(\"#dialGradient\");\n    stroke: rgba(230, 241, 248, 0.16);\n    stroke-width: 1.2;\n  }\n\n  .dial-texture {\n    fill: none;\n    stroke: rgba(255, 255, 255, 0.035);\n    stroke-width: 16;\n    stroke-dasharray: 1 5;\n    opacity: 0.45;\n  }\n\n  .season-arc {\n    fill: none;\n    stroke-linecap: butt;\n    stroke-width: 22;\n    opacity: 0.97;\n    filter: url(\"#seasonLift\");\n  }\n\n  .ring-bevel {\n    fill: none;\n    stroke: rgba(0, 0, 0, 0.42);\n    stroke-width: 31;\n    filter: url(\"#seasonLift\");\n  }\n\n  .ring-inner-shadow,\n  .ring-outer-highlight {\n    fill: none;\n  }\n\n  .ring-inner-shadow {\n    stroke: rgba(0, 0, 0, 0.5);\n    stroke-width: 2.5;\n  }\n\n  .ring-outer-highlight {\n    stroke: rgba(255, 255, 255, 0.18);\n    stroke-width: 1.4;\n  }\n\n  .ring-guide {\n    fill: none;\n    stroke: rgba(218, 234, 244, 0.14);\n    stroke-width: 1;\n  }\n\n  .tick {\n    stroke: rgba(231, 241, 248, 0.18);\n    stroke-width: 0.7;\n    stroke-linecap: round;\n  }\n\n  .tick.month {\n    stroke: rgba(245, 249, 252, 0.76);\n    stroke-width: 1.7;\n  }\n\n  .month-names path {\n    fill: none;\n    stroke: none;\n  }\n\n  .month-name {\n    fill: rgba(255, 255, 255, 0.68);\n    font-size: 7.7px;\n    font-weight: 850;\n    letter-spacing: 1px;\n    text-anchor: middle;\n    dominant-baseline: middle;\n    pointer-events: none;\n    paint-order: stroke;\n    stroke: rgba(4, 12, 18, 0.52);\n    stroke-width: 1.8px;\n  }\n\n  .event-label,\n  .event-date {\n    text-anchor: middle;\n    dominant-baseline: middle;\n    letter-spacing: 0;\n  }\n\n  .event-line {\n    stroke: rgba(244, 248, 251, 0.72);\n    stroke-width: 1.3;\n    stroke-linecap: round;\n  }\n\n  .event-dot {\n    fill: #f7fbff;\n    stroke: rgba(4, 12, 18, 0.78);\n    stroke-width: 1;\n  }\n\n  .event-label {\n    fill: rgba(238, 245, 249, 0.9);\n    font-size: 7.2px;\n    font-weight: 760;\n    text-transform: uppercase;\n  }\n\n  .event-date {\n    fill: var(--season-clock-muted);\n    font-size: 7px;\n    font-weight: 650;\n  }\n\n  .progress-track {\n    fill: none;\n    stroke: rgba(255, 255, 255, 0.08);\n    stroke-width: 5;\n  }\n\n  .season-progress {\n    fill: none;\n    stroke-linecap: round;\n    stroke-width: 5;\n    opacity: 0.78;\n  }\n\n  .today-dot {\n    fill: #fff6cf;\n    stroke: rgba(5, 12, 18, 0.82);\n    stroke-width: 1.3;\n  }\n\n  .next-event-dot {\n    fill: rgba(255, 255, 255, 0.72);\n    stroke: rgba(5, 12, 18, 0.72);\n    stroke-width: 1;\n  }\n\n  .hand-shadow {\n    stroke: rgba(0, 0, 0, 0.68);\n    stroke-width: 6.4;\n    stroke-linecap: round;\n    filter: blur(0.25px);\n  }\n\n  .hand {\n    stroke: url(\"#handMetal\");\n    stroke-width: 4.1;\n    stroke-linecap: round;\n    filter: url(\"#handGlow\");\n  }\n\n  .hand-highlight {\n    stroke: rgba(255, 255, 255, 0.74);\n    stroke-width: 1.05;\n    stroke-linecap: round;\n  }\n\n  .moon-phase {\n    pointer-events: none;\n  }\n\n  .moon-badge {\n    fill: rgba(5, 12, 18, 0.84);\n    stroke: rgba(255, 250, 229, 0.72);\n    stroke-width: 1.2;\n  }\n\n  .moon-icon {\n    font-size: 14px;\n    text-anchor: middle;\n    dominant-baseline: middle;\n    alignment-baseline: central;\n  }\n\n  .pivot-halo {\n    fill: rgba(255, 255, 255, 0.14);\n    stroke: rgba(0, 0, 0, 0.38);\n    stroke-width: 1;\n  }\n\n  .pivot-shadow {\n    fill: rgba(0, 0, 0, 0.42);\n  }\n\n  .pivot {\n    fill: url(\"#pivotMetal\");\n    stroke: rgba(5, 12, 18, 0.78);\n    stroke-width: 1.2;\n  }\n\n  .pivot-highlight {\n    fill: rgba(255, 255, 255, 0.7);\n  }\n\n  .center-readout {\n    text-anchor: middle;\n    dominant-baseline: middle;\n  }\n\n  .complication {\n    pointer-events: none;\n  }\n\n  .complication-socket {\n    fill: rgba(0, 0, 0, 0.68);\n    stroke: rgba(255, 255, 255, 0.08);\n    stroke-width: 1;\n  }\n\n  .complication-socket-highlight {\n    fill: none;\n    stroke: rgba(255, 255, 255, 0.1);\n    stroke-width: 1.1;\n  }\n\n  .complication-shadow {\n    fill: rgba(0, 0, 0, 0.36);\n  }\n\n  .complication-face {\n    fill: url(\"#complicationFaceGradient\");\n    stroke: rgba(255, 255, 255, 0.62);\n    stroke-width: 1.1;\n    filter: url(\"#complicationInset\");\n  }\n\n  .complication-inner-shadow {\n    fill: none;\n    stroke: rgba(2, 8, 12, 0.24);\n    stroke-width: 5;\n  }\n\n  .complication-ring {\n    fill: none;\n    stroke-width: 1.15;\n    opacity: 0.76;\n  }\n\n  .complication-marker {\n    stroke-width: 1.2;\n    stroke-linecap: round;\n    opacity: 0.9;\n  }\n\n  .complication-title,\n  .complication-primary,\n  .complication-secondary {\n    text-anchor: middle;\n    dominant-baseline: middle;\n    letter-spacing: 0;\n  }\n\n  .complication-title {\n    fill: rgba(10, 20, 28, 0.8);\n    font-size: 7.8px;\n    font-weight: 820;\n    text-transform: uppercase;\n  }\n\n  .complication-primary {\n    font-size: 12.8px;\n    font-weight: 900;\n    paint-order: stroke;\n    stroke: rgba(239, 245, 246, 0.95);\n    stroke-width: 1px;\n  }\n\n  .complication-secondary {\n    fill: rgba(10, 20, 28, 0.68);\n    font-size: 8px;\n    font-weight: 720;\n  }\n\n  .emboss-shadow {\n    fill: rgba(255, 255, 255, 0.58);\n    stroke: none;\n  }\n\n  .place-complication .complication-primary,\n  .event-complication .complication-primary {\n    font-size: 10.4px;\n  }\n\n  .weather-complication .complication-primary {\n    font-size: 19px;\n    stroke-width: 0.7px;\n  }\n\n  .date-complication .complication-primary,\n  .season-complication .complication-primary {\n    font-size: 13.1px;\n  }\n\n  .clock-glass {\n    fill: url(\"#glassGradient\");\n    stroke: rgba(255, 255, 255, 0.12);\n    stroke-width: 1;\n    pointer-events: none;\n  }\n\n  .glass-sheen {\n    fill: none;\n    stroke: rgba(255, 255, 255, 0.16);\n    stroke-width: 7;\n    stroke-linecap: round;\n    opacity: 0.42;\n    pointer-events: none;\n  }\n", a = {
-	Spring: "#7acb8b",
+var i = "\n  :host {\n    display: block;\n    --season-clock-card-size: min(var(--season-clock-size, 500px), 100%);\n    --season-clock-text: #f3f8fc;\n    --season-clock-muted: #a7b6c1;\n    --season-clock-subtle: #6f8190;\n    --clock-shadow-deep: rgba(0, 0, 0, 0.72);\n    --clock-shadow-soft: rgba(0, 0, 0, 0.36);\n    --clock-highlight: rgba(255, 255, 255, 0.22);\n    --clock-glass: rgba(255, 255, 255, 0.08);\n    --clock-rim: rgba(206, 220, 229, 0.42);\n  }\n\n  ha-card {\n    display: block;\n    overflow: hidden;\n    border-radius: var(--ha-card-border-radius, 8px);\n    background: transparent;\n    border: 0;\n    box-shadow: none;\n  }\n\n  .header {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    gap: 12px;\n    padding: 14px 16px 0;\n  }\n\n  .title {\n    color: var(--primary-text-color, var(--season-clock-text));\n    font-size: 15px;\n    font-weight: 700;\n    line-height: 1.2;\n  }\n\n  .wrap {\n    width: var(--season-clock-card-size);\n    max-width: 100%;\n    aspect-ratio: 1;\n    margin: 0 auto;\n    filter:\n      drop-shadow(0 24px 42px var(--clock-shadow-deep))\n      drop-shadow(0 0 22px rgba(105, 174, 232, 0.08));\n  }\n\n  .clock {\n    display: block;\n    width: 100%;\n    height: 100%;\n    color: var(--season-clock-text);\n    font-family: var(--paper-font-body1_-_font-family, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif);\n  }\n\n  .clock-shadow {\n    fill: transparent;\n    stroke: rgba(236, 246, 252, 0.14);\n    stroke-width: 1.2;\n    filter: url(\"#dialInnerShadow\");\n  }\n\n  .outer-rim-glow {\n    fill: none;\n    stroke: rgba(145, 183, 210, 0.16);\n    stroke-width: 5;\n  }\n\n  .clock-face {\n    fill: url(\"#dialGradient\");\n    stroke: rgba(230, 241, 248, 0.16);\n    stroke-width: 1.2;\n  }\n\n  .dial-texture {\n    fill: none;\n    stroke: rgba(255, 255, 255, 0.035);\n    stroke-width: 16;\n    stroke-dasharray: 1 5;\n    opacity: 0.45;\n  }\n\n  .season-arc {\n    fill: none;\n    stroke-linecap: butt;\n    stroke-width: 22;\n    opacity: 0.97;\n    filter: url(\"#seasonLift\");\n  }\n\n  .ring-bevel {\n    fill: none;\n    stroke: rgba(0, 0, 0, 0.42);\n    stroke-width: 31;\n    filter: url(\"#seasonLift\");\n  }\n\n  .ring-inner-shadow,\n  .ring-outer-highlight {\n    fill: none;\n  }\n\n  .ring-inner-shadow {\n    stroke: rgba(0, 0, 0, 0.5);\n    stroke-width: 2.5;\n  }\n\n  .ring-outer-highlight {\n    stroke: rgba(255, 255, 255, 0.18);\n    stroke-width: 1.4;\n  }\n\n  .ring-guide {\n    fill: none;\n    stroke: rgba(218, 234, 244, 0.14);\n    stroke-width: 1;\n  }\n\n  .tick {\n    stroke: rgba(231, 241, 248, 0.18);\n    stroke-width: 0.7;\n    stroke-linecap: round;\n  }\n\n  .tick.month {\n    stroke: rgba(245, 249, 252, 0.76);\n    stroke-width: 1.7;\n  }\n\n  .month-names path {\n    fill: none;\n    stroke: none;\n  }\n\n  .month-name {\n    fill: rgba(255, 255, 255, 0.68);\n    font-size: 7.7px;\n    font-weight: 850;\n    letter-spacing: 1px;\n    text-anchor: middle;\n    dominant-baseline: middle;\n    pointer-events: none;\n    paint-order: stroke;\n    stroke: rgba(4, 12, 18, 0.52);\n    stroke-width: 1.8px;\n  }\n\n  .event-label,\n  .event-date {\n    text-anchor: middle;\n    dominant-baseline: middle;\n    letter-spacing: 0;\n  }\n\n  .event-line {\n    stroke: rgba(244, 248, 251, 0.72);\n    stroke-width: 1.3;\n    stroke-linecap: round;\n  }\n\n  .event-dot {\n    fill: #f7fbff;\n    stroke: rgba(4, 12, 18, 0.78);\n    stroke-width: 1;\n  }\n\n  .event-label {\n    fill: rgba(238, 245, 249, 0.92);\n    font-size: 7.8px;\n    font-weight: 760;\n    text-transform: uppercase;\n    paint-order: stroke;\n    stroke: rgba(4, 12, 18, 0.58);\n    stroke-width: 1.8px;\n  }\n\n  .event-date {\n    fill: rgba(190, 210, 224, 0.94);\n    font-size: 7.5px;\n    font-weight: 650;\n    paint-order: stroke;\n    stroke: rgba(4, 12, 18, 0.55);\n    stroke-width: 1.6px;\n  }\n\n  .progress-track {\n    fill: none;\n    stroke: rgba(255, 255, 255, 0.08);\n    stroke-width: 5;\n  }\n\n  .season-progress {\n    fill: none;\n    stroke-linecap: round;\n    stroke-width: 5;\n    opacity: 0.78;\n  }\n\n  .progress-tip-glow {\n    opacity: 0.38;\n    filter: url(\"#progressGlow\");\n  }\n\n  .progress-tip {\n    opacity: 0.9;\n  }\n\n  .today-halo {\n    fill: rgba(255, 246, 207, 0.22);\n    filter: url(\"#progressGlow\");\n  }\n\n  .today-dot {\n    fill: #fff6cf;\n    stroke: rgba(5, 12, 18, 0.82);\n    stroke-width: 1.3;\n  }\n\n  .next-event-dot {\n    fill: rgba(255, 255, 255, 0.72);\n    stroke: rgba(5, 12, 18, 0.72);\n    stroke-width: 1;\n  }\n\n  .hand-shadow {\n    stroke: rgba(0, 0, 0, 0.68);\n    stroke-width: 6.4;\n    stroke-linecap: round;\n    filter: blur(0.25px);\n  }\n\n  .hand {\n    stroke: url(\"#handMetal\");\n    stroke-width: 4.1;\n    stroke-linecap: round;\n    filter: url(\"#handGlow\");\n  }\n\n  .hand-highlight {\n    stroke: rgba(255, 255, 255, 0.74);\n    stroke-width: 1.05;\n    stroke-linecap: round;\n  }\n\n  .hand-precision {\n    stroke: rgba(255, 255, 255, 0.5);\n    stroke-width: 0.85;\n    stroke-linecap: round;\n  }\n\n  .moon-phase {\n    pointer-events: none;\n  }\n\n  .moon-badge {\n    fill: rgba(5, 12, 18, 0.84);\n    stroke: rgba(255, 250, 229, 0.72);\n    stroke-width: 1.2;\n  }\n\n  .moon-icon {\n    font-size: 14px;\n    text-anchor: middle;\n    dominant-baseline: middle;\n    alignment-baseline: central;\n  }\n\n  .pivot-halo {\n    fill: rgba(255, 255, 255, 0.14);\n    stroke: rgba(0, 0, 0, 0.38);\n    stroke-width: 1;\n  }\n\n  .pivot-shadow {\n    fill: rgba(0, 0, 0, 0.42);\n  }\n\n  .pivot {\n    fill: url(\"#pivotMetal\");\n    stroke: rgba(5, 12, 18, 0.78);\n    stroke-width: 1.2;\n  }\n\n  .pivot-highlight {\n    fill: rgba(255, 255, 255, 0.7);\n  }\n\n  .center-readout {\n    text-anchor: middle;\n    dominant-baseline: middle;\n  }\n\n  .complication {\n    pointer-events: none;\n  }\n\n  .complication-socket {\n    fill: rgba(0, 0, 0, 0.68);\n    stroke: rgba(255, 255, 255, 0.08);\n    stroke-width: 1;\n  }\n\n  .complication-socket-highlight {\n    fill: none;\n    stroke: rgba(255, 255, 255, 0.1);\n    stroke-width: 1.1;\n  }\n\n  .complication-shadow {\n    fill: rgba(0, 0, 0, 0.36);\n  }\n\n  .complication-face {\n    fill: url(\"#complicationFaceGradient\");\n    stroke: rgba(255, 255, 255, 0.62);\n    stroke-width: 1.1;\n    filter: url(\"#complicationInset\");\n  }\n\n  .complication-inner-shadow {\n    fill: none;\n    stroke: rgba(2, 8, 12, 0.24);\n    stroke-width: 5;\n  }\n\n  .complication-ring {\n    fill: none;\n    stroke-width: 1.15;\n    opacity: 0.76;\n  }\n\n  .complication-marker {\n    stroke-width: 1.2;\n    stroke-linecap: round;\n    opacity: 0.9;\n  }\n\n  .complication-title,\n  .complication-primary,\n  .complication-secondary {\n    text-anchor: middle;\n    dominant-baseline: middle;\n    letter-spacing: 0;\n  }\n\n  .complication-title {\n    fill: rgba(8, 16, 22, 0.88);\n    font-size: 8.4px;\n    font-weight: 820;\n    text-transform: uppercase;\n  }\n\n  .complication-primary {\n    font-size: 13.8px;\n    font-weight: 900;\n    paint-order: stroke;\n    stroke: rgba(239, 245, 246, 0.95);\n    stroke-width: 1px;\n  }\n\n  .complication-secondary {\n    fill: rgba(8, 16, 22, 0.76);\n    font-size: 8.6px;\n    font-weight: 720;\n  }\n\n  .emboss-shadow {\n    fill: rgba(255, 255, 255, 0.58);\n    stroke: none;\n  }\n\n  .place-complication .complication-primary,\n  .event-complication .complication-primary {\n    font-size: 11.2px;\n  }\n\n  .weather-complication .complication-primary {\n    font-size: 20px;\n    stroke-width: 0.7px;\n  }\n\n  .date-complication .complication-primary,\n  .season-complication .complication-primary {\n    font-size: 14px;\n  }\n\n  .clock-glass {\n    fill: url(\"#glassGradient\");\n    stroke: rgba(255, 255, 255, 0.12);\n    stroke-width: 1;\n    pointer-events: none;\n  }\n\n  .glass-sheen {\n    fill: none;\n    stroke: rgba(255, 255, 255, 0.16);\n    stroke-width: 7;\n    stroke-linecap: round;\n    opacity: 0.42;\n    pointer-events: none;\n  }\n\n  .glass-sheen-2 {\n    stroke: rgba(255, 255, 255, 0.08);\n    stroke-width: 4;\n    opacity: 0.38;\n  }\n", a = {
+	Spring: "#4ecb78",
 	Summer: "#e9bf52",
 	Autumn: "#d77a4b",
 	Winter: "#69aee8"
@@ -421,8 +414,8 @@ var S = {
 	dayTickInner: 187,
 	monthTickInner: 174,
 	eventInner: 168,
-	eventOuter: 202,
-	eventLabel: 224,
+	eventOuter: 196,
+	eventLabel: 202,
 	seasonLabel: 136,
 	progressRadius: 155,
 	todayRadius: 207,
@@ -514,6 +507,13 @@ var S = {
           <filter id="dialInnerShadow" x="-12%" y="-12%" width="124%" height="124%">
             <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#000000" flood-opacity="0.55"></feDropShadow>
           </filter>
+          <filter id="progressGlow" x="-120%" y="-120%" width="340%" height="340%">
+            <feGaussianBlur stdDeviation="3.5" result="blur"></feGaussianBlur>
+            <feMerge>
+              <feMergeNode in="blur"></feMergeNode>
+              <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+          </filter>
         </defs>
         <circle class="clock-shadow" cx="250" cy="250" r="213"></circle>
         <circle class="outer-rim-glow" cx="250" cy="250" r="213"></circle>
@@ -527,9 +527,11 @@ var S = {
         ${this.renderCenterReadout(e)}
         <circle class="clock-glass" cx="250" cy="250" r="207"></circle>
         <path class="glass-sheen" d="M 106 174 C 162 87 306 64 388 136"></path>
+        <path class="glass-sheen glass-sheen-2" d="M 120 188 C 172 108 298 80 368 146"></path>
         <line class="hand-shadow" x1="250" y1="252" x2="${e.handPoint.x}" y2="${e.handPoint.y + 2}"></line>
         <line class="hand" x1="250" y1="250" x2="${e.handPoint.x}" y2="${e.handPoint.y}"></line>
         <line class="hand-highlight" x1="250" y1="250" x2="${e.handPoint.x}" y2="${e.handPoint.y}"></line>
+        ${this.renderPrecisionLine(e)}
         ${this.renderMoonPhase(e)}
         <circle class="pivot-shadow" cx="250" cy="253" r="12"></circle>
         <circle class="pivot-halo" cx="250" cy="250" r="11"></circle>
@@ -548,13 +550,20 @@ var S = {
       </g>
     `;
 	}
+	renderPrecisionLine(e) {
+		let t = _(e.dayOfYear, e.totalDays), n = v(T, t, E.moonRadius + 14), r = v(T, t, E.todayRadius - 5);
+		return `<line class="hand-precision" x1="${n.x}" y1="${n.y}" x2="${r.x}" y2="${r.y}"></line>`;
+	}
 	renderProgressLayer(e) {
-		let t = e.currentSeason.start + (e.currentSeason.end - e.currentSeason.start) * (e.seasonProgress / 100), n = y(T, T, E.progressRadius, _(e.currentSeason.start, e.totalDays), _(t, e.totalDays)), r = v(T, _(e.dayOfYear, e.totalDays), E.todayRadius), i = v(T, _(e.nextEvent.dayOfYear, e.totalDays), E.todayRadius);
+		let t = e.currentSeason.start + (e.currentSeason.end - e.currentSeason.start) * (e.seasonProgress / 100), n = y(T, T, E.progressRadius, _(e.currentSeason.start, e.totalDays), _(t, e.totalDays)), r = v(T, _(e.dayOfYear, e.totalDays), E.todayRadius), i = v(T, _(e.nextEvent.dayOfYear, e.totalDays), E.todayRadius), o = v(T, _(t, e.totalDays), E.progressRadius), s = a[e.currentSeason.name];
 		return `
       <g class="progress-layer">
         <circle class="progress-track" cx="250" cy="250" r="${E.progressRadius}"></circle>
-        <path class="season-progress" d="${n}" stroke="${a[e.currentSeason.name]}"></path>
+        <path class="season-progress" d="${n}" stroke="${s}"></path>
+        <circle class="progress-tip-glow" cx="${o.x}" cy="${o.y}" r="5" fill="${s}"></circle>
+        <circle class="progress-tip" cx="${o.x}" cy="${o.y}" r="2.5" fill="${s}"></circle>
         <circle class="next-event-dot" cx="${i.x}" cy="${i.y}" r="3.2"></circle>
+        <circle class="today-halo" cx="${r.x}" cy="${r.y}" r="9"></circle>
         <circle class="today-dot" cx="${r.x}" cy="${r.y}" r="4.2"></circle>
       </g>
     `;
@@ -604,11 +613,11 @@ var S = {
 		}).join("")}</g>`;
 	}
 	renderEventLabel(e, t) {
-		let n = e.label.toUpperCase().split(" ");
+		let n = e.label.toUpperCase().includes("SOLSTICE") ? "SOLSTICE" : "EQUINOX", r = `${e.day} ${o[e.month].toUpperCase()}`;
 		return `
       <text class="event-label" x="${t.x}" y="${t.y - 4}">
-        ${n.map((e, n) => `<tspan x="${t.x}" dy="${n === 0 ? 0 : 8.2}">${e}</tspan>`).join("")}
-        <tspan class="event-date" x="${t.x}" dy="9">${e.day} ${o[e.month].toUpperCase()}</tspan>
+        <tspan x="${t.x}" dy="0">${n}</tspan>
+        <tspan class="event-date" x="${t.x}" dy="9">${r}</tspan>
       </text>
     `;
 	}
@@ -676,7 +685,7 @@ var S = {
         <circle class="complication-face" cx="${t}" cy="${n}" r="${r}"></circle>
         <circle class="complication-inner-shadow" cx="${t}" cy="${n}" r="${r - 4}"></circle>
         <circle class="complication-ring" cx="${t}" cy="${n}" r="${r - 3}" stroke="${c}"></circle>
-        <line class="complication-marker" x1="${t}" y1="${n - r + 8}" x2="${t}" y2="${n - r + 15}" stroke="${c}"></line>
+        <line class="complication-marker" x1="${t}" y1="${n - r + 6}" x2="${t}" y2="${n - r + 15}" stroke="${c}"></line>
         <text class="complication-title emboss-shadow" x="${t}" y="${n - 14.5}">${this.escape(this.truncate(i, 10))}</text>
         <text class="complication-title" x="${t}" y="${n - 15}">${this.escape(this.truncate(i, 10))}</text>
         <text class="complication-primary emboss-shadow" x="${t}" y="${n + 3.5}" fill="${c}">${this.escape(a)}</text>

@@ -79,8 +79,8 @@ const LAYOUT = {
   dayTickInner: 187,
   monthTickInner: 174,
   eventInner: 168,
-  eventOuter: 202,
-  eventLabel: 224,
+  eventOuter: 196,
+  eventLabel: 202,
   seasonLabel: 136,
   progressRadius: 155,
   todayRadius: 207,
@@ -190,6 +190,13 @@ class SeasonClockCard extends HTMLElement {
           <filter id="dialInnerShadow" x="-12%" y="-12%" width="124%" height="124%">
             <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#000000" flood-opacity="0.55"></feDropShadow>
           </filter>
+          <filter id="progressGlow" x="-120%" y="-120%" width="340%" height="340%">
+            <feGaussianBlur stdDeviation="3.5" result="blur"></feGaussianBlur>
+            <feMerge>
+              <feMergeNode in="blur"></feMergeNode>
+              <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+          </filter>
         </defs>
         <circle class="clock-shadow" cx="250" cy="250" r="213"></circle>
         <circle class="outer-rim-glow" cx="250" cy="250" r="213"></circle>
@@ -203,9 +210,11 @@ class SeasonClockCard extends HTMLElement {
         ${this.renderCenterReadout(model)}
         <circle class="clock-glass" cx="250" cy="250" r="207"></circle>
         <path class="glass-sheen" d="M 106 174 C 162 87 306 64 388 136"></path>
+        <path class="glass-sheen glass-sheen-2" d="M 120 188 C 172 108 298 80 368 146"></path>
         <line class="hand-shadow" x1="250" y1="252" x2="${model.handPoint.x}" y2="${model.handPoint.y + 2}"></line>
         <line class="hand" x1="250" y1="250" x2="${model.handPoint.x}" y2="${model.handPoint.y}"></line>
         <line class="hand-highlight" x1="250" y1="250" x2="${model.handPoint.x}" y2="${model.handPoint.y}"></line>
+        ${this.renderPrecisionLine(model)}
         ${this.renderMoonPhase(model)}
         <circle class="pivot-shadow" cx="250" cy="253" r="12"></circle>
         <circle class="pivot-halo" cx="250" cy="250" r="11"></circle>
@@ -229,6 +238,13 @@ class SeasonClockCard extends HTMLElement {
     `;
   }
 
+  renderPrecisionLine(model) {
+    const angle = dayToAngle(model.dayOfYear, model.totalDays);
+    const start = pointAt(CENTER, angle, LAYOUT.moonRadius + 14);
+    const end = pointAt(CENTER, angle, LAYOUT.todayRadius - 5);
+    return `<line class="hand-precision" x1="${start.x}" y1="${start.y}" x2="${end.x}" y2="${end.y}"></line>`;
+  }
+
   renderProgressLayer(model) {
     const progressEnd = model.currentSeason.start + ((model.currentSeason.end - model.currentSeason.start) * (model.seasonProgress / 100));
     const progressPath = describeArc(
@@ -240,12 +256,17 @@ class SeasonClockCard extends HTMLElement {
     );
     const today = pointAt(CENTER, dayToAngle(model.dayOfYear, model.totalDays), LAYOUT.todayRadius);
     const next = pointAt(CENTER, dayToAngle(model.nextEvent.dayOfYear, model.totalDays), LAYOUT.todayRadius);
+    const tip = pointAt(CENTER, dayToAngle(progressEnd, model.totalDays), LAYOUT.progressRadius);
+    const seasonColor = SEASON_COLORS[model.currentSeason.name];
 
     return `
       <g class="progress-layer">
         <circle class="progress-track" cx="250" cy="250" r="${LAYOUT.progressRadius}"></circle>
-        <path class="season-progress" d="${progressPath}" stroke="${SEASON_COLORS[model.currentSeason.name]}"></path>
+        <path class="season-progress" d="${progressPath}" stroke="${seasonColor}"></path>
+        <circle class="progress-tip-glow" cx="${tip.x}" cy="${tip.y}" r="5" fill="${seasonColor}"></circle>
+        <circle class="progress-tip" cx="${tip.x}" cy="${tip.y}" r="2.5" fill="${seasonColor}"></circle>
         <circle class="next-event-dot" cx="${next.x}" cy="${next.y}" r="3.2"></circle>
+        <circle class="today-halo" cx="${today.x}" cy="${today.y}" r="9"></circle>
         <circle class="today-dot" cx="${today.x}" cy="${today.y}" r="4.2"></circle>
       </g>
     `;
@@ -327,11 +348,12 @@ class SeasonClockCard extends HTMLElement {
   }
 
   renderEventLabel(event, point) {
-    const words = event.label.toUpperCase().split(" ");
+    const typeWord = event.label.toUpperCase().includes("SOLSTICE") ? "SOLSTICE" : "EQUINOX";
+    const dateStr = `${event.day} ${MONTH_SHORT[event.month].toUpperCase()}`;
     return `
       <text class="event-label" x="${point.x}" y="${point.y - 4}">
-        ${words.map((word, index) => `<tspan x="${point.x}" dy="${index === 0 ? 0 : 8.2}">${word}</tspan>`).join("")}
-        <tspan class="event-date" x="${point.x}" dy="9">${event.day} ${MONTH_SHORT[event.month].toUpperCase()}</tspan>
+        <tspan x="${point.x}" dy="0">${typeWord}</tspan>
+        <tspan class="event-date" x="${point.x}" dy="9">${dateStr}</tspan>
       </text>
     `;
   }
@@ -418,7 +440,7 @@ class SeasonClockCard extends HTMLElement {
         <circle class="complication-face" cx="${x}" cy="${y}" r="${radius}"></circle>
         <circle class="complication-inner-shadow" cx="${x}" cy="${y}" r="${radius - 4}"></circle>
         <circle class="complication-ring" cx="${x}" cy="${y}" r="${radius - 3}" stroke="${safeAccent}"></circle>
-        <line class="complication-marker" x1="${x}" y1="${y - radius + 8}" x2="${x}" y2="${y - radius + 15}" stroke="${safeAccent}"></line>
+        <line class="complication-marker" x1="${x}" y1="${y - radius + 6}" x2="${x}" y2="${y - radius + 15}" stroke="${safeAccent}"></line>
         <text class="complication-title emboss-shadow" x="${x}" y="${y - 14.5}">${this.escape(this.truncate(title, 10))}</text>
         <text class="complication-title" x="${x}" y="${y - 15}">${this.escape(this.truncate(title, 10))}</text>
         <text class="complication-primary emboss-shadow" x="${x}" y="${y + 3.5}" fill="${safeAccent}">${this.escape(primary)}</text>

@@ -54,8 +54,6 @@ export class SeasonClockCardEditor extends HTMLElement {
     super();
     this._config = {};
     this._updatingForm = false;
-    this._pendingFormUpdate = false;
-    this._pendingFormValue = null;
   }
 
   setConfig(config) {
@@ -134,24 +132,11 @@ export class SeasonClockCardEditor extends HTMLElement {
     if (this._updatingForm) {
       return;
     }
-
     const value = event.detail?.value;
-    this._pendingFormValue = this.isConfigObject(value) ? value : null;
-
-    if (this._pendingFormUpdate) {
+    if (!this.isConfigObject(value)) {
       return;
     }
-
-    this._pendingFormUpdate = true;
-    queueMicrotask(() => {
-      this._pendingFormUpdate = false;
-      const form = this.querySelector("ha-form");
-      const formData = this.isConfigObject(form?.data) ? form.data : null;
-      const valueConfig = this._pendingFormValue;
-      const nextConfig = formData && valueConfig ? { ...formData, ...valueConfig } : valueConfig || formData || {};
-      this._pendingFormValue = null;
-      this.updateConfig(nextConfig);
-    });
+    this.updateConfig(value);
   }
 
   updateForm() {
@@ -170,9 +155,9 @@ export class SeasonClockCardEditor extends HTMLElement {
     this._updatingForm = true;
     form.hass = this._hass;
     form.data = { ...EDITOR_DEFAULTS, ...(this._config || {}) };
-    queueMicrotask(() => {
+    setTimeout(() => {
       this._updatingForm = false;
-    });
+    }, 0);
   }
 
   getLabel(schema) {

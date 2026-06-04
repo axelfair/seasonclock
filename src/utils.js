@@ -1,5 +1,5 @@
 export const SEASON_COLORS = {
-  Spring: "#7acb8b",
+  Spring: "#4ecb78",
   Summer: "#e9bf52",
   Autumn: "#d77a4b",
   Winter: "#69aee8"

@@ -166,16 +166,22 @@ export const CARD_STYLES = `
   }
 
   .event-label {
-    fill: rgba(238, 245, 249, 0.9);
-    font-size: 7.2px;
+    fill: rgba(238, 245, 249, 0.92);
+    font-size: 7.8px;
     font-weight: 760;
     text-transform: uppercase;
+    paint-order: stroke;
+    stroke: rgba(4, 12, 18, 0.58);
+    stroke-width: 1.8px;
   }
 
   .event-date {
-    fill: var(--season-clock-muted);
-    font-size: 7px;
+    fill: rgba(190, 210, 224, 0.94);
+    font-size: 7.5px;
     font-weight: 650;
+    paint-order: stroke;
+    stroke: rgba(4, 12, 18, 0.55);
+    stroke-width: 1.6px;
   }
 
   .progress-track {
@@ -189,6 +195,20 @@ export const CARD_STYLES = `
     stroke-linecap: round;
     stroke-width: 5;
     opacity: 0.78;
+  }
+
+  .progress-tip-glow {
+    opacity: 0.38;
+    filter: url("#progressGlow");
+  }
+
+  .progress-tip {
+    opacity: 0.9;
+  }
+
+  .today-halo {
+    fill: rgba(255, 246, 207, 0.22);
+    filter: url("#progressGlow");
   }
 
   .today-dot {
@@ -220,6 +240,12 @@ export const CARD_STYLES = `
   .hand-highlight {
     stroke: rgba(255, 255, 255, 0.74);
     stroke-width: 1.05;
+    stroke-linecap: round;
+  }
+
+  .hand-precision {
+    stroke: rgba(255, 255, 255, 0.5);
+    stroke-width: 0.85;
     stroke-linecap: round;
   }
 
@@ -319,14 +345,14 @@ export const CARD_STYLES = `
   }
 
   .complication-title {
-    fill: rgba(10, 20, 28, 0.8);
-    font-size: 7.8px;
+    fill: rgba(8, 16, 22, 0.88);
+    font-size: 8.4px;
     font-weight: 820;
     text-transform: uppercase;
   }
 
   .complication-primary {
-    font-size: 12.8px;
+    font-size: 13.8px;
     font-weight: 900;
     paint-order: stroke;
     stroke: rgba(239, 245, 246, 0.95);
@@ -334,8 +360,8 @@ export const CARD_STYLES = `
   }
 
   .complication-secondary {
-    fill: rgba(10, 20, 28, 0.68);
-    font-size: 8px;
+    fill: rgba(8, 16, 22, 0.76);
+    font-size: 8.6px;
     font-weight: 720;
   }
 
@@ -346,17 +372,17 @@ export const CARD_STYLES = `
 
   .place-complication .complication-primary,
   .event-complication .complication-primary {
-    font-size: 10.4px;
+    font-size: 11.2px;
   }
 
   .weather-complication .complication-primary {
-    font-size: 19px;
+    font-size: 20px;
     stroke-width: 0.7px;
   }
 
   .date-complication .complication-primary,
   .season-complication .complication-primary {
-    font-size: 13.1px;
+    font-size: 14px;
   }
 
   .clock-glass {
@@ -373,5 +399,11 @@ export const CARD_STYLES = `
     stroke-linecap: round;
     opacity: 0.42;
     pointer-events: none;
+  }
+
+  .glass-sheen-2 {
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 4;
+    opacity: 0.38;
   }
 `;

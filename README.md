@@ -10,9 +10,11 @@ Season Clock Card is a Home Assistant Lovelace card that shows a premium, locati
 - Premium glass-and-metal watch-face styling with recessed complications.
 - Fully configurable clock-face elements via YAML.
 - Location-aware Northern/Southern Hemisphere support.
-- Solstice and equinox markers.
+- Solstice and equinox markers positioned on the clock face.
 - Daily ticks and monthly markers.
-- Current moon phase icon calculated from the date.
+- Current moon phase icon at the tip of the clock hand.
+- Precision pointer line extending from the moon badge through the season ring to the today marker.
+- Season progress arc with a glowing leading tip in the current season colour.
 - Classic watch-style centre complications for date, season progress, next milestone, and weather.
 - Weather complication showing condition icon and current temperature from a weather entity.
 - Configurable card size and display options.
