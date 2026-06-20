@@ -107,6 +107,14 @@ class SeasonClockCard extends HTMLElement {
     };
   }
 
+  connectedCallback() {
+    this._liveInterval = setInterval(() => this.render(), 60000);
+  }
+
+  disconnectedCallback() {
+    clearInterval(this._liveInterval);
+  }
+
   setConfig(config) {
     this._userConfig = this.normalizeConfig(config || {});
     this._config = { ...DEFAULT_CONFIG, ...this._userConfig };
@@ -146,18 +154,17 @@ class SeasonClockCard extends HTMLElement {
 
   renderSvg(model) {
     return `
-      <svg class="clock" viewBox="0 0 500 500" role="img" aria-label="Season clock">
+      <svg class="clock" viewBox="0 0 500 500" role="img" aria-label="Season clock" text-rendering="geometricPrecision">
         <defs>
           <radialGradient id="dialGradient" cx="48%" cy="42%" r="62%">
             <stop offset="0%" stop-color="#182129"></stop>
             <stop offset="58%" stop-color="#071016"></stop>
             <stop offset="100%" stop-color="#010407"></stop>
           </radialGradient>
-          <radialGradient id="glassGradient" cx="32%" cy="24%" r="78%">
-            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"></stop>
-            <stop offset="36%" stop-color="#ffffff" stop-opacity="0.045"></stop>
-            <stop offset="70%" stop-color="#000000" stop-opacity="0.03"></stop>
-            <stop offset="100%" stop-color="#000000" stop-opacity="0.32"></stop>
+          <radialGradient id="glassGradient" cx="46%" cy="40%" r="78%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.13"></stop>
+            <stop offset="42%" stop-color="#ffffff" stop-opacity="0.03"></stop>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0.18"></stop>
           </radialGradient>
           <radialGradient id="complicationFaceGradient" cx="34%" cy="28%" r="76%">
             <stop offset="0%" stop-color="#f7fbfb"></stop>
@@ -202,7 +209,6 @@ class SeasonClockCard extends HTMLElement {
         <circle class="clock-shadow" cx="250" cy="250" r="213"></circle>
         <circle class="outer-rim-glow" cx="250" cy="250" r="213"></circle>
         <circle class="clock-face" cx="250" cy="250" r="154"></circle>
-        <circle class="dial-texture" cx="250" cy="250" r="153"></circle>
         ${this.renderSeasonArcs(model)}
         ${this.renderMonthNames(model)}
         ${this.renderTicks(model)}
@@ -230,7 +236,7 @@ class SeasonClockCard extends HTMLElement {
       return "";
     }
 
-    const point = pointAt(CENTER, dayToAngle(model.dayOfYear, model.totalDays), LAYOUT.moonRadius);
+    const point = pointAt(CENTER, dayToAngle(model.dayFraction, model.totalDays), LAYOUT.moonRadius);
     return `
       <g class="moon-phase" aria-label="${this.escape(model.moonPhase.label)}">
         <circle class="moon-badge" cx="${point.x}" cy="${point.y}" r="12"></circle>
@@ -240,7 +246,7 @@ class SeasonClockCard extends HTMLElement {
   }
 
   renderPrecisionLine(model) {
-    const angle = dayToAngle(model.dayOfYear, model.totalDays);
+    const angle = dayToAngle(model.dayFraction, model.totalDays);
     const start = pointAt(CENTER, angle, LAYOUT.moonRadius + 14);
     const end = pointAt(CENTER, angle, LAYOUT.todayRadius - 5);
     return `<line class="hand-precision" x1="${start.x}" y1="${start.y}" x2="${end.x}" y2="${end.y}"></line>`;
@@ -345,7 +351,7 @@ class SeasonClockCard extends HTMLElement {
       dayToAngle(model.currentSeason.start, model.totalDays),
       dayToAngle(progressEnd, model.totalDays)
     );
-    const today = pointAt(CENTER, dayToAngle(model.dayOfYear, model.totalDays), LAYOUT.todayRadius);
+    const today = pointAt(CENTER, dayToAngle(model.dayFraction, model.totalDays), LAYOUT.todayRadius);
     const next = pointAt(CENTER, dayToAngle(model.nextEvent.dayOfYear, model.totalDays), LAYOUT.todayRadius);
     const tip = pointAt(CENTER, dayToAngle(progressEnd, model.totalDays), LAYOUT.progressRadius);
     const seasonColor = SEASON_COLORS[model.currentSeason.name];
@@ -524,12 +530,9 @@ class SeasonClockCard extends HTMLElement {
         <circle class="complication-inner-shadow" cx="${x}" cy="${y}" r="${radius - 4}"></circle>
         <circle class="complication-ring" cx="${x}" cy="${y}" r="${radius - 3}" stroke="${safeAccent}"></circle>
         <line class="complication-marker" x1="${x}" y1="${y - radius + 6}" x2="${x}" y2="${y - radius + 15}" stroke="${safeAccent}"></line>
-        <text class="complication-title emboss-shadow" x="${x}" y="${y - 14.5}">${this.escape(this.truncate(title, 10))}</text>
         <text class="complication-title" x="${x}" y="${y - 15}">${this.escape(this.truncate(title, 10))}</text>
-        <text class="complication-primary emboss-shadow" x="${x}" y="${y + 3.5}" fill="${safeAccent}">${this.escape(primary)}</text>
         <text class="complication-primary" x="${x}" y="${y + 3}" fill="${safeAccent}">${this.escape(primary)}</text>
         ${secondary ? `
-          <text class="complication-secondary emboss-shadow" x="${x}" y="${y + 19.5}">${this.escape(secondary)}</text>
           <text class="complication-secondary" x="${x}" y="${y + 19}">${this.escape(secondary)}</text>
         ` : ""}
       </g>
@@ -553,6 +556,7 @@ class SeasonClockCard extends HTMLElement {
     const year = now.getFullYear();
     const totalDays = isLeapYear(year) ? 366 : 365;
     const dayOfYear = getDayOfYear(now);
+    const dayFraction = dayOfYear + (now.getHours() * 60 + now.getMinutes()) / 1440;
     const location = this.getLocation();
     const hemisphere = normalizeHemisphere(this._config.hemisphere, location.latitude);
     const events = hemisphere === "north" ? NORTHERN_EVENTS : SOUTHERN_EVENTS;
@@ -566,6 +570,7 @@ class SeasonClockCard extends HTMLElement {
       year,
       totalDays,
       dayOfYear,
+      dayFraction,
       hemisphere,
       events,
       segments,
@@ -576,7 +581,7 @@ class SeasonClockCard extends HTMLElement {
       locationName: location.name,
       weather: this.getWeather(),
       weatherInfo: this.getWeatherInfo(),
-      handPoint: pointAt(CENTER, dayToAngle(dayOfYear, totalDays), LAYOUT.handLength),
+      handPoint: pointAt(CENTER, dayToAngle(dayFraction, totalDays), LAYOUT.handLength),
       weekday: new Intl.DateTimeFormat(undefined, { weekday: "long" }).format(now),
       dateShort: new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short" }).format(now),
       dateLabel: new Intl.DateTimeFormat(undefined, { day: "numeric", month: "long", year: "numeric" }).format(now)

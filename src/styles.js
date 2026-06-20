@@ -41,9 +41,7 @@ export const CARD_STYLES = `
     max-width: 100%;
     aspect-ratio: 1;
     margin: 0 auto;
-    filter:
-      drop-shadow(0 24px 42px var(--clock-shadow-deep))
-      drop-shadow(0 0 22px rgba(105, 174, 232, 0.08));
+    filter: drop-shadow(0 20px 38px var(--clock-shadow-deep));
   }
 
   .clock {
@@ -52,6 +50,7 @@ export const CARD_STYLES = `
     height: 100%;
     color: var(--season-clock-text);
     font-family: var(--paper-font-body1_-_font-family, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    text-rendering: geometricPrecision;
   }
 
   .clock-shadow {
@@ -134,16 +133,13 @@ export const CARD_STYLES = `
   }
 
   .month-name {
-    fill: rgba(255, 255, 255, 0.68);
+    fill: rgba(255, 255, 255, 0.72);
     font-size: 7.7px;
-    font-weight: 850;
+    font-weight: 700;
     letter-spacing: 1px;
     text-anchor: middle;
     dominant-baseline: middle;
     pointer-events: none;
-    paint-order: stroke;
-    stroke: rgba(4, 12, 18, 0.52);
-    stroke-width: 1.8px;
   }
 
   .event-label,
@@ -168,20 +164,14 @@ export const CARD_STYLES = `
   .event-label {
     fill: rgba(238, 245, 249, 0.92);
     font-size: 7.8px;
-    font-weight: 760;
+    font-weight: 700;
     text-transform: uppercase;
-    paint-order: stroke;
-    stroke: rgba(4, 12, 18, 0.58);
-    stroke-width: 1.8px;
   }
 
   .event-date {
     fill: rgba(190, 210, 224, 0.94);
     font-size: 7.5px;
-    font-weight: 650;
-    paint-order: stroke;
-    stroke: rgba(4, 12, 18, 0.55);
-    stroke-width: 1.6px;
+    font-weight: 500;
   }
 
   .progress-track {
@@ -197,18 +187,31 @@ export const CARD_STYLES = `
     opacity: 0.78;
   }
 
-  .progress-tip-glow {
-    opacity: 0.38;
-    filter: url("#progressGlow");
-  }
-
   .progress-tip {
     opacity: 0.9;
+  }
+
+  @keyframes pulse-halo {
+    0%, 100% { opacity: 0.22; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.6); }
+  }
+
+  @keyframes glow-breathe {
+    0%, 100% { opacity: 0.38; transform: scale(1); }
+    50% { opacity: 0.68; transform: scale(1.4); }
+  }
+
+  @keyframes pivot-shimmer {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.72; }
   }
 
   .today-halo {
     fill: rgba(255, 246, 207, 0.22);
     filter: url("#progressGlow");
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pulse-halo 2.8s ease-in-out infinite;
   }
 
   .today-dot {
@@ -221,6 +224,17 @@ export const CARD_STYLES = `
     fill: rgba(255, 255, 255, 0.72);
     stroke: rgba(5, 12, 18, 0.72);
     stroke-width: 1;
+  }
+
+  .progress-tip-glow {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: glow-breathe 3.4s ease-in-out infinite;
+  }
+
+  .pivot-highlight {
+    fill: rgba(255, 255, 255, 0.7);
+    animation: pivot-shimmer 4s ease-in-out infinite;
   }
 
   .hand-shadow {
@@ -280,10 +294,6 @@ export const CARD_STYLES = `
     fill: url("#pivotMetal");
     stroke: rgba(5, 12, 18, 0.78);
     stroke-width: 1.2;
-  }
-
-  .pivot-highlight {
-    fill: rgba(255, 255, 255, 0.7);
   }
 
   .center-readout {
@@ -347,27 +357,21 @@ export const CARD_STYLES = `
   .complication-title {
     fill: rgba(8, 16, 22, 0.88);
     font-size: 8.4px;
-    font-weight: 820;
+    font-weight: 700;
     text-transform: uppercase;
+    filter: drop-shadow(0 0.6px 0 rgba(255, 255, 255, 0.42));
   }
 
   .complication-primary {
     font-size: 13.8px;
-    font-weight: 900;
-    paint-order: stroke;
-    stroke: rgba(239, 245, 246, 0.95);
-    stroke-width: 1px;
+    font-weight: 800;
   }
 
   .complication-secondary {
     fill: rgba(8, 16, 22, 0.76);
     font-size: 8.6px;
-    font-weight: 720;
-  }
-
-  .emboss-shadow {
-    fill: rgba(255, 255, 255, 0.58);
-    stroke: none;
+    font-weight: 600;
+    filter: drop-shadow(0 0.5px 0 rgba(255, 255, 255, 0.32));
   }
 
   .place-complication .complication-primary,
@@ -377,7 +381,6 @@ export const CARD_STYLES = `
 
   .weather-complication .complication-primary {
     font-size: 20px;
-    stroke-width: 0.7px;
   }
 
   .date-complication .complication-primary,
